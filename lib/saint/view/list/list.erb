@@ -117,7 +117,7 @@
         <% else -%>
             <form id="saint-forms-summary-delete" action="<%= http.route(:delete) %>" method="post">
               <input type="hidden" name="redirect_to" value="<%= http.route(@pager.query_string) %>"/>
-              <%= saint_view.render_partial('list/list-partial', items: @rows, level: 0, color: nil) %>
+              <%= saint_view.render_view('list/list-partial', items: @rows, level: 0, color: nil) %>
             </form>
         <% end -%>
       </div>

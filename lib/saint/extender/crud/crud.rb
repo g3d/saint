@@ -33,7 +33,7 @@ module Saint
             @__meta_title__ = saint.label
           end
           partial = @errors.size > 0 ? 'error' : 'list/list'
-          saint_view.render_layout saint_view.render_partial(partial)
+          saint_view.render_master_layout { saint_view.render_view(partial) }
         end
 
         def edit row_id = 0
@@ -44,7 +44,7 @@ module Saint
               saint.orm.new
           unless @row
             error = 'Item not found'
-            error = saint_view.render_partial('error') if @errors.size > 0
+            error = saint_view.render_view('error') if @errors.size > 0
             http.halt error, status: 500
           end
 
@@ -78,7 +78,7 @@ module Saint
           end
 
           @elements = crud_columns(saint.column_instances, @row)
-          saint_view.render_layout saint_view.render_partial('edit/edit')
+          saint_view.render_master_layout { saint_view.render_view('edit/edit') }
         end
 
         def save row_id = 0
@@ -169,7 +169,7 @@ module Saint
 
           if @errors.size > 0
             status = 0
-            message = saint_view.render_partial('error')
+            message = saint_view.render_view('error')
           else
             status = @row[saint.pkey]
             label = assoc_updated ? '"%s :%s" association' % [assoc_updated.type, assoc_updated.name] : saint.label(singular: true)
@@ -199,7 +199,7 @@ module Saint
               @errors = saint.orm.delete(saint.pkey => rows)[1]
 
               if @errors.size > 0
-                message = saint_view.render_partial('error')
+                message = saint_view.render_view('error')
               else
                 status = 1
                 message = '%s %s successfully deleted!' % [rows.size, saint.label(singular: rows.size == 1)]

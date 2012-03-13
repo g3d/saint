@@ -245,7 +245,7 @@ module Saint
     end
 
     def render_assets
-      @rendered_assets ||= saint_view.render_partial 'assets'
+      @rendered_assets ||= saint_view.render_view 'assets'
     end
 
     def render_menu
@@ -253,7 +253,9 @@ module Saint
     end
 
     def render_dashboard scope, str = nil
-      saint_view(scope).render_layout("%s\n%s" % [saint_view(scope).render_partial('dashboard'), str])
+      saint_view(scope).render_master_layout do
+         "%s\n%s" % [saint_view(scope).render_view('dashboard'), str]
+      end
     end
 
     # should the controller be displayed on dashboard?

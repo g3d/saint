@@ -10,6 +10,7 @@ module Saint
       api = Presto::ViewApi.new
       api.engine Saint.view.engine
       api.ext Saint.view.ext
+      api.layout :layout
       api.root Saint.view.root
       api.scope scope
       api

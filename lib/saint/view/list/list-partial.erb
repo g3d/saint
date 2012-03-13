@@ -71,7 +71,7 @@
           <tr id="<%= children_container_id %>" style="display: none;">
             <td></td>
             <td colspan="<%= @columns.size + 1 %>">
-              <%= saint_view.render_partial('list/list-partial', items: children, level: level + 1, color: self_color) %>
+              <%= saint_view.render_view('list/list-partial', items: children, level: level + 1, color: self_color) %>
             </td>
           </tr>
       <% end -%>

@@ -9,7 +9,7 @@ module Saint
     # add a new summary tab.
     # @example add new tab
     #    saint.summary_tab :Statistics do
-    #      view.render_partial :statistics
+    #      view.render_view :statistics
     #    end
     #
     # @example override master tab

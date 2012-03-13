@@ -87,7 +87,7 @@ module Saint
             scan
             @path.split('/').each { |dir| scan dir }
           end
-          saint_view.render_layout saint_view.render_partial('fm/%s' % view)
+          saint_view.render_master_layout { saint_view.render_view('fm/%s' % view) }
         end
 
         def create path = nil
@@ -176,7 +176,7 @@ module Saint
             FileUtils.mv(http.params['file'][:tempfile], ::File.join(setup.root, path, name))
           rescue => e
             @errors = e
-            return saint_view.render_partial('error')
+            return saint_view.render_view('error')
           end
           1
         end
@@ -232,7 +232,7 @@ module Saint
               files << file
             end
           end
-          saint_view.render_partial 'fm/search', files: files
+          saint_view.render_view 'fm/search', files: files
         end
 
         def read_file
@@ -251,7 +251,7 @@ module Saint
             end
           end
           response = {status: 1, content: content}
-          response = {status: 0, message: saint_view.render_partial('error')} if @errors
+          response = {status: 0, message: saint_view.render_view('error')} if @errors
           response.to_json
         end
 
@@ -343,7 +343,7 @@ module Saint
             end
           rescue => e
             @errors = e
-            response = {status: 0, message: saint_view.render_partial('error')}
+            response = {status: 0, message: saint_view.render_view('error')}
           end
           response.to_json
         end

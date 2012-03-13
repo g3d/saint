@@ -77,7 +77,7 @@ module Saint
           [image[:width], image[:height]]
         rescue => e
           @errors = e
-          Saint::Utils.saint_view(self).render_partial 'error'
+          Saint::Utils.saint_view(self).render_view 'error'
         end
       end
 

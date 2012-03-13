@@ -38,5 +38,5 @@
 
 <% if @remote_items.size > 0 -%>
     <%= @pager.html %>
-    <%= saint_view.render_partial('list/assoc/belongs_to-partial', items: @remote_items, level: 0, color: nil) %>
+    <%= saint_view.render_view('list/assoc/belongs_to-partial', items: @remote_items, level: 0, color: nil) %>
 <% end %>

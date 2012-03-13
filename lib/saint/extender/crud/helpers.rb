@@ -15,7 +15,7 @@ module Saint
               html << (render_grid(el.grid, grid_elements, opts) || '')
             else
               context = {layout: layout, el: el, el_html: el_html, row: opts[:row]}
-              html << saint_view.render_partial('edit/element', context)
+              html << saint_view.render_view('edit/element', context)
             end
           end
           html
@@ -24,7 +24,7 @@ module Saint
         def render_grid grid_name, elements, opts = {}
           if grid = (opts[:node]||self).saint.grids[grid_name]
             context = {grid: grid, elements: elements, opts: opts}
-            saint_view.render_partial('edit/grid', context)
+            saint_view.render_view('edit/grid', context)
           end
         end
 
@@ -32,7 +32,7 @@ module Saint
           columns.select { |n, c| c.crud? }.values.inject({}) do |map, column|
             element, value = column, column.crud_value(row, self)
             html = column.type ?
-                saint_view.render_partial('edit/elements/%s' % column.type, element: element, value: value) :
+                saint_view.render_view('edit/elements/%s' % column.type, element: element, value: value) :
                 value
             map.update(column => html)
           end

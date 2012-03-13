@@ -53,7 +53,7 @@ module Saint
               end
             end
           end
-          saint_view.render_partial @errors.size > 0 ? 'error' : 'list/assoc/%s' % @relation.type
+          saint_view.render_view @errors.size > 0 ? 'error' : 'list/assoc/%s' % @relation.type
         end
 
         #
@@ -102,7 +102,7 @@ module Saint
             end
           end
 
-          return {status: 0, message: saint_view.render_partial('error')}.to_json if @errors.size > 0
+          return {status: 0, message: saint_view.render_view('error')}.to_json if @errors.size > 0
           # executing :after callback, if any
           relation.after && relation.local_node.class_exec(&relation.after)
           {status: local_id, message: '"%s :%s" association successfully updated' % [relation.type, relation.name]}.to_json
@@ -127,7 +127,7 @@ module Saint
 
           @errors = through_orm.send(action.to_sym, data_set)[1]
 
-          return {status: 0, message: saint_view.render_partial('error')}.to_json if @errors.size > 0
+          return {status: 0, message: saint_view.render_view('error')}.to_json if @errors.size > 0
           # executing :after callback, if any
           relation.after && relation.local_node.class_exec(&relation.after)
           {status: local_id, message: '"%s :%s" association successfully updated' % [relation.type, relation.name]}.to_json

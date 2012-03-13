@@ -51,7 +51,7 @@ module Saint
 
       return if opts[:skip_render]
 
-      @html = saint_view.render_partial(::File.join('pager', (@opts[:template] || :default).to_s))
+      @html = saint_view.render_view(::File.join('pager', (@opts[:template] || :default).to_s))
       self
     end
 

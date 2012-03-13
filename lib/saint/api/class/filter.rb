@@ -139,7 +139,7 @@ module Saint
           when :http
             instances.map { |i| i.send(type) }.concat(subsets[type]).concat(Ordered.http(params)).flatten.compact
           when :html
-            instances.size > 0 ? saint_view.render_partial('filter/layout', filters: instances) : nil
+            instances.size > 0 ? saint_view.render_view('filter/layout', filters: instances) : nil
         end
       end
       filters.size == 1 ? filters.first : filters
@@ -664,9 +664,9 @@ module Saint
       @xhr = xhr
       partial = ::File.join('filter', @setup.type.to_s)
       if @setup.range?
-        %w[min max].map { |c| saint_view.render_partial partial, range_cardinality: c }.join
+        %w[min max].map { |c| saint_view.render_view partial, range_cardinality: c }.join
       else
-        saint_view.render_partial partial, range_cardinality: nil
+        saint_view.render_view partial, range_cardinality: nil
       end
     end
 
@@ -723,7 +723,7 @@ module Saint
       remote_items, @errors = @setup.remote_orm.filter(filters.merge(order))
       if @errors.size > 0
         @errors << 'ORM Filters: %s' % @setup.node.http.escape_html(filters.inspect)
-        return saint_view.render_partial('error')
+        return saint_view.render_view('error')
       end
       remote_items.each do |remote_item|
         value = @setup.remote_label.map do |c|

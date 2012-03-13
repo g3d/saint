@@ -86,7 +86,7 @@ module Saint
     def tree parent = nil
       html = ''
       items.select { |i| i.label && i.parent == parent }.each do |item|
-        html << saint_view.render_partial('menu/menu', item: item)
+        html << saint_view.render_view('menu/menu', item: item)
       end
       html
     end
