@@ -59,8 +59,8 @@
                     new <%= saint.label singular: true %>
                   </div>
               <% else -%>
-                  <% if rel.remote_node_create_button
-                         remote_belongs_to = rel.remote_node.saint.belongs_to || {} -%>
+                  <% if rel.remote_controller_create_button
+                         remote_belongs_to = rel.remote_controller.saint.belongs_to || {} -%>
 
                       <% if remote_belongs_to.size > 0 -%>
                           <div class="tabbable">
@@ -85,7 +85,7 @@
                       <div class="tab-content">
 
                         <div class="tab-pane active" id="<%= tab_id %>-create_new-tabs">
-                          <form id="<%= form_id %>" action="<%= rel.remote_node.http.route(:save) %>" method="post">
+                          <form id="<%= form_id %>" action="<%= rel.remote_controller.http.route(:save) %>" method="post">
                             <% if row_id > 0 && rel.belongs_to? -%>
                                 <div class="alert alert-info">
                                   <label class="checkbox">
@@ -98,7 +98,7 @@
                                 </div>
                             <% end -%>
 
-                            <%= render_elements crud_columns(rel.remote_node.saint.column_instances), node: rel.remote_node %>
+                            <%= render_elements crud_columns(rel.remote_controller.saint.column_instances), controller: rel.remote_controller %>
                             <% remote_belongs_to.each_value do |remote_rel|
                                 associated = rel.local_model.__id__ == remote_rel.remote_model.__id__ -%>
                                 <input type="hidden" name="<%= remote_rel.local_key %>"
@@ -139,20 +139,20 @@
                                       }
                               Saint.alert(response.message);
                               $('#<%= tab_id %>-select_existing-toggle').tab('show');
-                              Saint.update_container('<%= rel.id %>1', '<%= rel.remote_node.http.route :assoc__any__remote_items, rel.id, row_id, 1 %>');
-                              Saint.update_container('<%= rel.id %>0', '<%= rel.remote_node.http.route :assoc__any__remote_items, rel.id, row_id, 0 %>');
+                              Saint.update_container('<%= rel.id %>1', '<%= rel.remote_controller.http.route :assoc__any__remote_items, rel.id, row_id, 1 %>');
+                              Saint.update_container('<%= rel.id %>0', '<%= rel.remote_controller.http.route :assoc__any__remote_items, rel.id, row_id, 0 %>');
                               $('#<%= form_id %>')[0].reset();
                               });">
                         Save <%= label__singular %>
                       </button>
 
                   <% else
-                         snippet = 'node %s::%s, true' % [self.class.name.split('::').shift, Saint::Inflector.classify(rel.name)] -%>
+                         snippet = 'controller %s::%s, true' % [self.class.name.split('::').shift, Saint::Inflector.classify(rel.name)] -%>
                       Please insert <code><%= snippet %></code> into
                       relation block.
                       <p>
                           <pre>
-<%= "class #{ rel.local_node}\n  saint.#{ '%s :%s, %s do' % [rel.type, rel.name, rel.remote_model] }\n    #{ snippet }\n    # other setup\n  end\nend" %></pre>
+<%= "class #{ rel.local_controller}\n  saint.#{ '%s :%s, %s do' % [rel.type, rel.name, rel.remote_model] }\n    #{ snippet }\n    # other setup\n  end\nend" %></pre>
                       </p>
                   <% end -%>
               <% end -%>

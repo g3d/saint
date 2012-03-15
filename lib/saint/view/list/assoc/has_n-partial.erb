@@ -2,8 +2,8 @@
     var query_string = '<%= @pager.query_string %>';
 </script>
 
-<% remote_node = @relation.remote_node
-   tree = remote_node && remote_node.saint.is_tree?
+<% remote_controller = @relation.remote_controller
+   tree = remote_controller && remote_controller.saint.is_tree?
    attachable = level == 0 && @relation.readonly.nil?
    th_label_classes = level == 0 ? 'label label-info' : 'label'
 -%>
@@ -17,7 +17,7 @@
 
     <th style="width: 5%;">
       <span class="<%= th_label_classes %>">
-      <%= remote_node ? remote_node.saint.pkey : Saint::ORMUtils.primary_key(@relation.remote_model) %>
+      <%= remote_controller ? remote_controller.saint.pkey : Saint::ORMUtils.primary_key(@relation.remote_model) %>
       </span>
     </th>
     <% @remote_columns.each do |column| -%>
@@ -85,8 +85,8 @@
 
         <td class="nowrap">
           <i class="icon-edit"></i>
-          <% if remote_node -%>
-              <a href="<%= remote_node.http.route(:edit, remote_id) %>" target="_blank">
+          <% if remote_controller -%>
+              <a href="<%= remote_controller.http.route(:edit, remote_id) %>" target="_blank">
                 <%= remote_id %>
               </a>
           <% else -%>

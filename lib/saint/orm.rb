@@ -113,10 +113,10 @@ module Saint
 
     attr_reader :model
 
-    def initialize model, *node_instance_and_or_subset
+    def initialize model, *controller_instance_and_or_subset
 
-      @model, @subset, @node_instance = model, Hash.new, nil
-      node_instance_and_or_subset.each { |a| a.is_a?(Hash) ? @subset.update(a) : @node_instance = a }
+      @model, @subset, @controller_instance = model, Hash.new, nil
+      controller_instance_and_or_subset.each { |a| a.is_a?(Hash) ? @subset.update(a) : @controller_instance = a }
       @before, @after = Hash.new, Hash.new
     end
 
@@ -203,7 +203,7 @@ module Saint
 
     def db operation = nil, row = nil, &proc
       @result, @errors = nil, Array.new
-      scope = @node_instance || self
+      scope = @controller_instance || self
       begin
 
         if row

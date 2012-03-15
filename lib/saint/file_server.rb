@@ -8,9 +8,7 @@ module Saint
     http.map DOCUMENT_ROOT
     http.file_server '%s/static' % Saint.root do |env|
       env['PATH_INFO'] = env['PATH_INFO'].sub(/\.saint\-fs$/i, '')
-      env
     end
-    node.mount
 
     class Assets
       def initialize

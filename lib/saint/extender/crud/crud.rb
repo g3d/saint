@@ -1,15 +1,15 @@
 module Saint
   class CrudExtender
 
-    def initialize node
-      @node = node
-      @node.send :include, Saint::Utils
+    def initialize controller
+      @controller = controller
+      @controller.send :include, Saint::Utils
       helpers; assoc; filter; crud
       Saint::ORMUtils.finalize
     end
 
     def crud
-      @node.class_exec do
+      @controller.class_exec do
 
         def index
 

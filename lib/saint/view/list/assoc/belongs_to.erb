@@ -1,4 +1,4 @@
-<% remote_node = @relation.remote_node -%>
+<% remote_controller = @relation.remote_controller -%>
 
 <% if http.xhr? -%>
     <%= Saint::FileServer.assets.js 'ui.js' %>
@@ -12,7 +12,7 @@
             <input type="checkbox" checked="true"
                    <% if @local_id > 0 -%>
                    onclick="return saint__assoc__belongs_to__update(
-                           '<%= @relation.local_node.http.route(:save, @local_id) %>',
+                           '<%= @relation.local_controller.http.route(:save, @local_id) %>',
                            '<%= @relation.id %>',
                            '<%= @relation.local_key %>',
                            '<%= @local_id %>',
@@ -23,9 +23,9 @@
                    <% end -%>
                    />
             Belongs to:
-            <a href="<%= @relation.remote_node ? @relation.remote_node.http.route(:edit, remote_item[saint.pkey]) : 'javascript:void(0);' %>" target="_blank">
-              <%= @relation.remote_node ?
-                          @relation.remote_node.saint.h(remote_item) :
+            <a href="<%= @relation.remote_controller ? @relation.remote_controller.http.route(:edit, remote_item[saint.pkey]) : 'javascript:void(0);' %>" target="_blank">
+              <%= @relation.remote_controller ?
+                          @relation.remote_controller.saint.h(remote_item) :
                           @remote_columns.map { |c| val = c.summary_value(remote_item, self).to_s; val.size > 0 ? val : nil }.compact.join(', ')
               %>
             </a>
@@ -34,7 +34,7 @@
     <% end -%>
 <% end -%>
 
-<%= saint_view.render_view('list/assoc/filters') if xhr.nil? && remote_node %>
+<%= saint_view.render_view('list/assoc/filters') if xhr.nil? && remote_controller %>
 
 <% if @remote_items.size > 0 -%>
     <%= @pager.html %>

@@ -1,9 +1,10 @@
 require 'presto' unless Object.const_defined?(:Presto)
-require 'cgi/util'
-require 'digest'
 require 'erubis'
 require 'json'
 require 'mini_magick'
+
+require 'cgi/util'
+require 'digest'
 require 'find'
 require 'base64'
 require 'fileutils'
@@ -15,14 +16,14 @@ module Saint
     include Presto::Utils
     include Presto::View::Utils
 
-    attr_accessor :menu, :relations, :nodes
+    attr_accessor :menu, :relations, :controllers
 
     def root
       @root ||= ::File.join(::File.expand_path('../saint', __FILE__), '')
     end
 
-    def ordered_nodes
-      nodes.select { |n| n.saint.menu.label unless n.saint.menu.disabled? }.
+    def ordered_controllers
+      controllers.select { |n| n.saint.menu.label unless n.saint.menu.disabled? }.
           sort { |a, b| [b.saint.menu.position, a.saint.label] <=> [a.saint.menu.position, b.saint.label] }
     end
 
@@ -48,7 +49,7 @@ module Saint
     end
 
   end
-  self.relations, self.nodes = Hash.new, Array.new
+  self.relations, self.controllers = {}, []
 end
 
 module SaintConst

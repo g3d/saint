@@ -9,7 +9,7 @@ module Saint
     end
 
     def subset_instances params, *types
-      instances = @subsets.map { |c, f| Subset.new(@node, c, f, params) }
+      instances = @subsets.map { |c, f| Subset.new(@controller, c, f, params) }
       types = (types.size == 0 ? [:orm, :http, :html] : types).compact
       filters = types.map do |type|
         case type
@@ -27,8 +27,8 @@ module Saint
       include Saint::Utils
       VAR = 'saint-subsets'
 
-      def initialize node, column, filters, params = {}
-        @node, @params = node, params
+      def initialize controller, column, filters, params = {}
+        @controller, @params = controller, params
         @column, @filters = column, filters
         if @params[VAR].is_a?(Hash) && active_filter = @params[VAR][column.to_s]
           @filters.each_key { |f| @active_filter = f if f == active_filter }

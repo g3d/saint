@@ -3,7 +3,7 @@ module Saint
 
     # initializing and/or returning menu Api(see {Saint::ClassApi::MenuApi})
     def menu &proc
-      @menu ||= MenuApi.new(@node, &proc)
+      @menu ||= MenuApi.new(@controller, &proc)
       @menu
     end
 
@@ -11,16 +11,16 @@ module Saint
 
   class MenuApi
 
-    attr_reader :node,
+    attr_reader :controller,
                 :label,
                 :parent,
                 :children,
                 :position,
                 :prefix, :suffix
 
-    def initialize node = nil, &proc
+    def initialize controller = nil, &proc
 
-      @node = node
+      @controller = controller
       @scope = :default
       @position = 0
       @children = Array.new
@@ -29,16 +29,16 @@ module Saint
 
     def url url = nil
       @url = url if url
-      @url || (@node.http.route if @node)
+      @url || (@controller.http.route if @controller)
     end
 
     # label to be displayed in UI
     def label label = nil
       @label = label if label
-      @label || (@node.saint.label if @node)
+      @label || (@controller.saint.label if @controller)
     end
 
-    # node under which the current menu item will reside
+    # controller under which the current menu item will reside
     def parent parent = nil
       return @parent unless parent
       @parent = parent.respond_to?(:saint) ? parent.saint.menu : parent
@@ -73,7 +73,7 @@ module Saint
       @void
     end
 
-    # some nodes should not be displayed in menu
+    # some controllers should not be displayed in menu
     def disabled *args
       @disabled = true
     end

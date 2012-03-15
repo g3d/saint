@@ -1,6 +1,6 @@
 <%= Saint::FileServer.assets.js('ui.js') if http.xhr? %>
 
-<%= saint_view.render_view('list/assoc/filters') if @relation.remote_node && http.params['xhr'].nil? && @attached == 0 %>
+<%= saint_view.render_view('list/assoc/filters') if @relation.remote_controller && http.params['xhr'].nil? && @attached == 0 %>
 
 <% if (items = @remote_items) && items.size > 0 -%>
 

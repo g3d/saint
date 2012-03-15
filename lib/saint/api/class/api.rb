@@ -4,12 +4,12 @@ module Saint
     include Saint::Utils
     include Saint::Inflector
 
-    # initializing the configuration Api for given node.
+    # initializing the configuration Api for given controller.
     #
-    # @param [Object] node
-    def initialize node
+    # @param [Object] controller
+    def initialize controller
 
-      @node = node
+      @controller = controller
       @ipp = Saint.ipp
       @pkey = :id
 
@@ -35,7 +35,7 @@ module Saint
 
     # *  setting the Api model
     # *  setting the primary key
-    # *  extending current node by adding CRUD methods
+    # *  extending current controller by adding CRUD methods
     #
     # @param [Class] model
     #   should be an valid ORM model. for now only DataMapper ORM supported.
@@ -51,7 +51,7 @@ module Saint
         build_associations
         build_columns
         build_filters
-        extend_node
+        extend_controller
       end
       @model
     end
@@ -169,7 +169,7 @@ module Saint
         args = @header_args
         if row && args.size == 0
           # no snippets defined, so using first model property
-          args = [Saint::ORMUtils.properties(@node.saint.model).keys.first]
+          args = [Saint::ORMUtils.properties(@controller.saint.model).keys.first]
         end
         args.each do |a|
           (s = column_format(a, row)) && s.strip.size > 0 && header << escape_html(s)
@@ -218,7 +218,7 @@ module Saint
     # proc will receive the managed row as first argument(except #destroy action)
     # and can update it accordingly.
     # performed action will be passed as second argument.
-    # proc will be executed inside node instance, so all Api available.
+    # proc will be executed inside controller instance, so all Api available.
     #
     # available actions:
     # *  save - fires when new item created or existing item updated
@@ -266,17 +266,17 @@ module Saint
 
     # get the label earlier set by `header`
     def label opts = {}
-      @label ||= escape_html((@header_opts[:label] || pluralize(titleize(demodulize(@node)))).to_s)
+      @label ||= escape_html((@header_opts[:label] || pluralize(titleize(demodulize(@controller)))).to_s)
       opts[:singular] ? singularize(@label) : @label
     end
 
     private
     def configurable?
-      @node.node.configurable?
+      @controller.ctrl.configurable?
     end
 
-    def extend_node
-      Saint::CrudExtender.new @node
+    def extend_controller
+      Saint::CrudExtender.new @controller
     end
 
     def remove_capability cap

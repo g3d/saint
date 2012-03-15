@@ -2,14 +2,14 @@ module Saint
   class CrudExtender
 
     def assoc
-      @node.class_exec do
+      @controller.class_exec do
 
         def assoc__any__remote_items relation_id, local_id = 0, attached = 0
 
           unless @relation = Saint.relations[relation_id]
             return "Wrong Relation ID"
           end
-          remote_node = @relation.remote_node
+          remote_controller = @relation.remote_controller
 
           @attached = attached.to_i
           @local_id = local_id.to_i
@@ -18,10 +18,10 @@ module Saint
           # no filters by default
           orm_filters, http_filters = {}, []
 
-          if remote_node
-            # however, if remote node provided,
-            # filters defined by remote node will be applied here.
-            orm_filters, http_filters = remote_node.saint.filter_instances(http.params, :orm, :http)
+          if remote_controller
+            # however, if remote controller provided,
+            # filters defined by remote controller will be applied here.
+            orm_filters, http_filters = remote_controller.saint.filter_instances(http.params, :orm, :http)
           end
 
           @remote_items = Array.new
@@ -96,7 +96,7 @@ module Saint
             end
             if @errors.size == 0
               # executing :before callback, if any
-              relation.before && relation.local_node.class_exec(&relation.before)
+              relation.before && relation.local_controller.class_exec(&relation.before)
               # updating remote item by set its key to local_id
               @errors = relation.remote_orm.update(remote_item, relation.remote_key => local_id)[1]
             end
@@ -104,7 +104,7 @@ module Saint
 
           return {status: 0, message: saint_view.render_view('error')}.to_json if @errors.size > 0
           # executing :after callback, if any
-          relation.after && relation.local_node.class_exec(&relation.after)
+          relation.after && relation.local_controller.class_exec(&relation.after)
           {status: local_id, message: '"%s :%s" association successfully updated' % [relation.type, relation.name]}.to_json
         end
 
@@ -123,13 +123,13 @@ module Saint
           }
 
           # executing :before callback, if any
-          relation.before && relation.local_node.class_exec(&relation.before)
+          relation.before && relation.local_controller.class_exec(&relation.before)
 
           @errors = through_orm.send(action.to_sym, data_set)[1]
 
           return {status: 0, message: saint_view.render_view('error')}.to_json if @errors.size > 0
           # executing :after callback, if any
-          relation.after && relation.local_node.class_exec(&relation.after)
+          relation.after && relation.local_controller.class_exec(&relation.after)
           {status: local_id, message: '"%s :%s" association successfully updated' % [relation.type, relation.name]}.to_json
         end
 
@@ -143,12 +143,12 @@ module Saint
 
           errors = []
           @local_item, errors = local_orm.first(local_pkey => @local_id) if @local_id > 0
-          remote_node = @relation.remote_node
+          remote_controller = @relation.remote_controller
 
           # adding filters defined inside relation block.
           if relation_filters = @relation.filters(@local_item)
             # but adding only if there are no http filters in act.
-            filters.update(relation_filters) unless remote_node && remote_node.saint.filters?(http.params)
+            filters.update(relation_filters) unless remote_controller && remote_controller.saint.filters?(http.params)
           end
 
           if errors.size == 0

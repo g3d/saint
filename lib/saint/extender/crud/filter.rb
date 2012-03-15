@@ -2,7 +2,7 @@ module Saint
   class CrudExtender
 
     def filter
-      @node.class_exec do
+      @controller.class_exec do
 
         def filter column, seed
           return unless filter = self.class.saint.filter_instances.values.select do |f|

@@ -2,12 +2,12 @@ module Saint
   class CrudExtender
 
     def helpers
-      @node.class_exec do
+      @controller.class_exec do
 
         private
 
         def render_elements elements, opts = {}
-          layout = opts[:layout] || (opts[:node]||self).saint.column_layout
+          layout = opts[:layout] || (opts[:controller]||self).saint.column_layout
           html = ''
           elements.each_pair do |el, el_html|
             if el.grid
@@ -22,7 +22,7 @@ module Saint
         end
 
         def render_grid grid_name, elements, opts = {}
-          if grid = (opts[:node]||self).saint.grids[grid_name]
+          if grid = (opts[:controller]||self).saint.grids[grid_name]
             context = {grid: grid, elements: elements, opts: opts}
             saint_view.render_view('edit/grid', context)
           end

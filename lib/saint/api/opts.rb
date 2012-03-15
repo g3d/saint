@@ -1,6 +1,6 @@
 module Saint
   
-  # nodes including Saint::OptsApi get an extra method - #opts,
+  # controllers including Saint::OptsApi get an extra method - #opts,
   # which is an interface to Opts Api(see {Saint::ClassApi#opts})
   #
   # @example
@@ -18,7 +18,7 @@ module Saint
   #    # frontend
   #    module Frontend
   #      class Pages
-  #        # extending node to read opts set in backend
+  #        # extending controller to read opts set in backend
   #        include Saint::OptsApi
   #        # define opts manager
   #        opts Admin::Pages
@@ -27,9 +27,9 @@ module Saint
   #      end
   #    end
   module OptsApi
-    def self.included node
+    def self.included controller
 
-      node.class_exec do
+      controller.class_exec do
 
         define_singleton_method :opts do |*managers|
           @@opts ||= Class.new do

@@ -35,7 +35,7 @@ module Saint
       @grid && @grid_columns += 1
       type, opts = nil, {}
       type_and_or_opts.each { |a| a.is_a?(Hash) ? opts.update(a) : type = a }
-      column = ::Saint::Column.new(name, type, opts.merge(rbw: @node.saint.rbw, grid: @grid), &proc)
+      column = ::Saint::Column.new(name, type, opts.merge(rbw: @controller.saint.rbw, grid: @grid), &proc)
       @columns[column.name] = column
     end
 
@@ -123,7 +123,7 @@ module Saint
     # by default, Saint will manage all properties found on given model(except primary and foreign keys)
     # to ignore some of them, simply use `columns_ignored` inside #model block
     #
-    # @node this method should be called inside #model block
+    # @controller this method should be called inside #model block
     #
     # @example manage all columns but :meta_* and :visits
     #    saint.model SomeModel do
@@ -452,13 +452,13 @@ module Saint
     end
 
     # shortcut for `value row, :crud`
-    def crud_value row = nil, node_instance = nil
-      value row, :crud, node_instance
+    def crud_value row = nil, controller_instance = nil
+      value row, :crud, controller_instance
     end
 
     # shortcut for `value row, :summary`
-    def summary_value row = nil, node_instance = nil
-      value row, :summary, node_instance
+    def summary_value row = nil, controller_instance = nil
+      value row, :summary, controller_instance
     end
 
     private
@@ -483,14 +483,14 @@ module Saint
     # @param [Object] row
     # @param [Symbol] scope
     # @param [Proc] proc
-    def value row = nil, scope = nil, node_instance = nil, &proc
+    def value row = nil, scope = nil, controller_instance = nil, &proc
 
       return @value_proc = proc if proc
 
       # extracting value
       value = (row||{})[@name]
 
-      @row, @scope, @node_instance = row, scope, node_instance
+      @row, @scope, @controller_instance = row, scope, controller_instance
 
       if @options && summary?
         value = @options[value] unless checkbox? || multiple?
@@ -503,7 +503,7 @@ module Saint
       if @value_proc && val = self.instance_exec(value, &@value_proc)
         value = val
       end
-      @row, @scope, @node_instance = nil
+      @row, @scope, @controller_instance = nil
 
       # passwords are not wrapped
       return value if password?
@@ -515,7 +515,7 @@ module Saint
 
     # giving access to active controller's methods, like http, view and any helpers
     def method_missing *args
-      @node_instance.send *args
+      @controller_instance.send *args
     end
 
   end

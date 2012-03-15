@@ -15,7 +15,7 @@ module Saint
       if name && remote_model && configurable?
 
         # initializing association
-        @belongs_to[name] = Assoc.new(__method__, name, @node, remote_model, &proc)
+        @belongs_to[name] = Assoc.new(__method__, name, @controller, remote_model, &proc)
 
         # also trigger is_tree relations builder
         is_tree?
@@ -23,7 +23,7 @@ module Saint
       @belongs_to
     end
 
-    # check if current node belongs_to given model
+    # check if current controller belongs_to given model
     # @param [Class] model
     def belongs_to? model
       (belongs_to || {}).select { |n, r| r.remote_model == model }.size > 0
@@ -49,7 +49,7 @@ module Saint
       if name && remote_model && configurable?
 
         # initializing relation
-        @has_n[name] = Assoc.new(__method__, name, @node, remote_model, through_model, &proc)
+        @has_n[name] = Assoc.new(__method__, name, @controller, remote_model, through_model, &proc)
 
         # also trigger is_tree relations builder
         is_tree?
@@ -87,10 +87,10 @@ module Saint
         return unless configurable?
         @is_tree = Hash.new
         has_n, belongs_to, proc = @tree_setup
-        node = @node
+        controller = @controller
 
-        has_n_assoc = Assoc.new(:has_n, has_n, @node, @node.saint.model) do
-          node node
+        has_n_assoc = Assoc.new(:has_n, has_n, @controller, @controller.saint.model) do
+          controller controller
           local_key :parent_id
           remote_key :parent_id
           children has_n
@@ -99,8 +99,8 @@ module Saint
         @has_n[has_n] = has_n_assoc
         @is_tree[:has_n] = has_n_assoc
 
-        belongs_to_assoc = Assoc.new(:belongs_to, belongs_to, @node, @node.saint.model) do
-          node node
+        belongs_to_assoc = Assoc.new(:belongs_to, belongs_to, @controller, @controller.saint.model) do
+          controller controller
           local_key :parent_id
           remote_key :parent_id
           parent belongs_to
@@ -246,17 +246,17 @@ module Saint
                 #class Pages
                 #  saint.model Model::Page
                 #  saint.belongs_to :author, Model::Author do
-                #    remote_node Authors
+                #    remote_controller Authors
                 #  end
                 #end
                 #
-                # :local_node is Pages
+                # :local_controller is Pages
                 # :local_model is  Model::Page
                 # :local_orm is an ORM instance initialized for :local_model
-                # remote_node is a method rather than an attribute, set to Authors on example above
+                # remote_controller is a method rather than an attribute, set to Authors on example above
                 # :remote_model is Model::Author
                 # :remote_orm is an ORM instance initialized for :remote_model
-                :local_node, :local_model, :local_orm,
+                :local_controller, :local_model, :local_orm,
                 :remote_model, :remote_orm,
 
                 # @example
@@ -271,28 +271,28 @@ module Saint
 
                 # if this is set to true, Saint will create an "Create New" button
                 # when rendering association UI.
-                # it can be set to true when defining remote_node.
+                # it can be set to true when defining remote_controller.
                 # simply set second argument to true:
                 #
                 #saint.has_n :pages, Model::Page do
-                #  remote_node Pages, true
+                #  remote_controller Pages, true
                 #end
-                :remote_node_create_button
+                :remote_controller_create_button
 
     # initialize new association
     #
     # @param [Symbol] type :has_n or :belongs_to
     # @param [Symbol] name
-    # @param [Class] node
+    # @param [Class] controller
     # @param [Class] remote_model
     # @param [Class] through_model defaulted to nil
     # @param [Proc] &proc
-    def initialize type, name, node, remote_model, through_model = nil, &proc
+    def initialize type, name, controller, remote_model, through_model = nil, &proc
 
-      @type, @local_node, @name = type, node, name
+      @type, @local_controller, @name = type, controller, name
       @remote_model, @through_model = remote_model, through_model
 
-      unless @local_model = @local_node.saint.model
+      unless @local_model = @local_controller.saint.model
         raise "saint.#{@type} error: Please define saint.model before dealing with saint.#{@type}"
       end
 
@@ -311,15 +311,15 @@ module Saint
       @filters = Array.new
       @columns = Hash.new
 
-      @local_pkey = @local_node.saint.pkey
+      @local_pkey = @local_controller.saint.pkey
       @remote_pkey = :id
 
       self.instance_exec(&proc) if proc
 
-      @local_orm = Saint::ORM.new @local_model, @local_node
-      @remote_orm = Saint::ORM.new @remote_model, @remote_node
+      @local_orm = Saint::ORM.new @local_model, @local_controller
+      @remote_orm = Saint::ORM.new @remote_model, @remote_controller
       if @through_model
-        @through_orm = Saint::ORM.new @through_model, @local_node, @remote_node
+        @through_orm = Saint::ORM.new @through_model, @local_controller, @remote_controller
       end
 
       if @type == :has_n
@@ -335,7 +335,7 @@ module Saint
         @remote_key ||= :id
       end
 
-      @id = [@type, @name, @local_node, @local_model, @remote_node, Digest::MD5.hexdigest(proc.to_s)].
+      @id = [@type, @name, @local_controller, @local_model, @remote_controller, Digest::MD5.hexdigest(proc.to_s)].
           map { |c| c.to_s }.join('_').gsub(/[^\w|\d]/, '_').gsub(/_+/, '_')
 
       ::Saint.relations[@id] = self
@@ -358,7 +358,7 @@ module Saint
     end
 
     # returns earlier defined columns.
-    # if none defined, returns 3 remote columns if remote node given,
+    # if none defined, returns 3 remote columns if remote controller given,
     # or first non-id remote column otherwise.
     def columns
 
@@ -366,15 +366,15 @@ module Saint
 
       # no columns defined for current assoc
 
-      if @remote_node
-        # remote_node defined, using 3 remote columns
-        remote_columns = @remote_node.saint.column_instances
+      if @remote_controller
+        # remote_controller defined, using 3 remote columns
+        remote_columns = @remote_controller.saint.column_instances
         remote_columns.select { |k, v| remote_columns.keys[0..2].include?(k) }.each_value do |column|
           @columns[column.name] = column
         end
       end
       if @columns.size == 0
-        # seems remote node not defined, using 1st remote column
+        # seems remote controller not defined, using 1st remote column
         if column = @remote_orm.properties.keys.first
           column = ::Saint::Column.new(column)
           @columns[column.name] = column
@@ -406,22 +406,22 @@ module Saint
     #
     #    class Controller::Author
     #      saint.has_n :pages, Page do
-    #        remote_node Controller::Pages
+    #        remote_controller Controller::Pages
     #      end
     #    end
-    # @param [Class] node
+    # @param [Class] controller
     # @param [Boolean] create_button
     #   if set to a positive value, GUI will display "Create New" button
     #   that will open an dialog where a new remote item can be created.
-    def remote_node node = nil, create_button = false
-      if node
-        @remote_node = node
-        @remote_node_create_button = create_button
+    def remote_controller controller = nil, create_button = false
+      if controller
+        @remote_controller = controller
+        @remote_controller_create_button = create_button
       end
-      @remote_node
+      @remote_controller
     end
 
-    alias :node :remote_node
+    alias :controller :remote_controller
 
     # the column on local model that should match the pkey of remote model.
     #
@@ -545,7 +545,7 @@ module Saint
     # @param [Symbol] key `:id`
     def remote_pkey key = nil
       @remote_pkey = key if key
-      @remote_pkey || (@remote_node.saint.pkey if @remote_node)
+      @remote_pkey || (@remote_controller.saint.pkey if @remote_controller)
     end
 
     # filter remote items.
@@ -593,7 +593,7 @@ module Saint
     end
 
     # the order to be used when displaying items.
-    # by default, if remote node defined, it will use there order,
+    # by default, if remote controller defined, it will use there order,
     # otherwise, it will arrange items by remote pkey in descending order.
     # use this method to set custom order.
     # call it multiple times to order by multiple columns/directions.
@@ -615,7 +615,7 @@ module Saint
           Should be one of :asc, :desc" unless [:asc, :desc].include?(direction)
         (@order ||= Hash.new)[column] = direction
       end
-      @order || (remote_node.saint.order if remote_node) || {remote_pkey => :desc}
+      @order || (remote_controller.saint.order if remote_controller) || {remote_pkey => :desc}
     end
 
     # self-explanatory

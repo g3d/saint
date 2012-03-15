@@ -14,7 +14,7 @@ module Ctrl
     saint.order :id, :desc
     saint.has_n :pages, Model::Page, Model::MenuPage do
       order :id, :desc
-      remote_node Ctrl::Page
+      controller Ctrl::Page
     end
   end
 end

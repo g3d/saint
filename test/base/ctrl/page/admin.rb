@@ -54,15 +54,8 @@ module Ctrl
       end
     end
 
-    #saint.has_n :menus, Model::Menu, Model::MenuPage do
-    #  node Ctrl::Menu, true
-    #  order :id, :desc
-    #end
-    #
-    #saint.is_tree
-    
     saint.belongs_to :author, Model::Author do
-      node Ctrl::Author, true
+      controller Ctrl::Author, true
       column :name
       column :email
       column :status, :boolean

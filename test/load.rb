@@ -4,7 +4,7 @@ require File.expand_path('../init', __FILE__)
   Dir[Pfg.model / "**/#{file}.rb"].each { |f| require f }
 end
 
-%w[ctrl admin test/*].each do |file|
+%w[ctrl admin].each do |file|
   Dir[Pfg.ctrl / "**/#{file}.rb"].each { |f| require f }
 end
 

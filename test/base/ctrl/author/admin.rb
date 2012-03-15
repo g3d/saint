@@ -21,7 +21,7 @@ module Ctrl
 
     saint.order :id, :desc
     saint.has_n :pages, Model::Page do
-      node Ctrl::Page, true
+      controller Ctrl::Page, true
       order :id, :desc
       column :name do
         label 'Name / Author'
@@ -32,7 +32,7 @@ module Ctrl
     end
 
     saint.belongs_to :country, Model::Country do
-      node Ctrl::Country, true
+      controller Ctrl::Country, true
     end
 
   end

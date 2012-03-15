@@ -50,7 +50,7 @@ module Saint
       end
     end
 
-    # nodes calling this method will act as opts editor UI.
+    # controllers calling this method will act as opts editor UI.
     # saint.model should be defined before this method called,
     # and have at least two columns: name and value
     #
@@ -111,14 +111,14 @@ module Saint
     # @param pool
     #   defaulted to memory pool
     # @param table
-    #   defaulted to node name
+    #   defaulted to controller name
     # @param &proc
     def opts pool = nil, table = nil, &proc
 
-      pool = OptsPool.new pool, table || @node.to_s, &proc
+      pool = OptsPool.new pool, table || @controller.to_s, &proc
 
-      # extending current node to act as an opts editor GUI.
-      @node.class_exec do
+      # extending current controller to act as an opts editor GUI.
+      @controller.class_exec do
 
         include Saint::Utils
 

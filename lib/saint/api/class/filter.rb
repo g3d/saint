@@ -45,7 +45,7 @@ module Saint
       return unless configurable?
       type, opts = nil, {}
       type_and_or_opts.each { |a| a.is_a?(Hash) ? opts.update(a) : type = a.to_sym }
-      (@filters ||= Hash.new)[column] = Filter.new(@node, column, type, opts, &proc)
+      (@filters ||= Hash.new)[column] = Filter.new(@controller, column, type, opts, &proc)
     end
 
     # if there are an filter defined for given column,
@@ -172,7 +172,7 @@ module Saint
     include Saint::Utils
     include Saint::Inflector
 
-    attr_reader :node, :type, :id, :var, :column_quoted,
+    attr_reader :controller, :type, :id, :var, :column_quoted,
                 :local_pkey, # primary key of searched model
                 :local_model, :local_orm, # Model/ORM that returns filtered items to be displayed as search results.
                 :remote_model, :remote_orm, # Model/ORM that returns items to be displayed on drop-down selectors.
@@ -186,7 +186,7 @@ module Saint
 
     # initialize new filter
     #
-    # @param [Class] node
+    # @param [Class] controller
     # @param [Symbol] column
     # @param [Symbol] type
     # @param [Hash] opts
@@ -197,10 +197,10 @@ module Saint
     # @option opts [Hash, Array] options options to be used on :select type
     # @option opts [Boolean] multiple
     # @option opts [Boolean] range
-    def initialize node, column, type = nil, opts = {}, &proc
+    def initialize controller, column, type = nil, opts = {}, &proc
 
-      @node, @column, @type = node, column, type
-      unless @local_model = @node.saint.model
+      @controller, @column, @type = controller, column, type
+      unless @local_model = @controller.saint.model
         raise 'Please define model before any setup'
       end
 
@@ -240,10 +240,10 @@ module Saint
 
       @type ||= @remote_model ? :select : :string
 
-      @id = ['saint_filters', @node, @column, @remote_model, @through_model].
+      @id = ['saint_filters', @controller, @column, @remote_model, @through_model].
           map { |c| c.to_s }.compact.join('-').gsub(/[^\w|\d]/, '_').gsub(/_+/, '_')
 
-      @local_pkey = @node.saint.pkey
+      @local_pkey = @controller.saint.pkey
       if (is_local_filter = @local_model.new.respond_to?(@column)) || @through_model
         @local_orm = Saint::ORM.new(@local_model)
         @column_quoted = @local_orm.quote_column(@column) if is_local_filter
@@ -473,7 +473,7 @@ module Saint
     # @param [Array] *columns
     def depends_on *columns
       columns.each do |column|
-        unless filter = @node.saint.filter_instances[column]
+        unless filter = @controller.saint.filter_instances[column]
           raise "No filter found by #{column} column"
         end
         @depends_on << filter
@@ -484,7 +484,7 @@ module Saint
     # return filters that depends on given filter
     def dependant_filters filter = self, level = 0
       @dependant_filters = Array.new if level == 0
-      @dependant_filters.concat(@node.saint.filter_instances.values.map do |f|
+      @dependant_filters.concat(@controller.saint.filter_instances.values.map do |f|
         next if f.depends_on.select { |pf| pf.__id__ == filter.__id__ }.size == 0
         dependant_filters(f, level+1)
         f
@@ -677,7 +677,7 @@ module Saint
     # @param [Symbol] column
     def filter? column
       return @val if column == @setup.column
-      @setup.node.saint.filter? column, @params
+      @setup.controller.saint.filter? column, @params
     end
 
     # see Saint::ClassApi::Filter#label
@@ -722,7 +722,7 @@ module Saint
       order = @setup.remote_orm.order(@setup.remote_order)
       remote_items, @errors = @setup.remote_orm.filter(filters.merge(order))
       if @errors.size > 0
-        @errors << 'ORM Filters: %s' % @setup.node.http.escape_html(filters.inspect)
+        @errors << 'ORM Filters: %s' % @setup.controller.http.escape_html(filters.inspect)
         return saint_view.render_view('error')
       end
       remote_items.each do |remote_item|

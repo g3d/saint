@@ -6,12 +6,12 @@ module Saint
 
     attr_reader :roots
 
-    def initialize node, opts = {}, &proc
-      @node, @opts, @roots = node, opts, Array.new
+    def initialize controller, opts = {}, &proc
+      @controller, @opts, @roots = controller, opts, Array.new
       self.instance_exec &proc
-      unless @node.respond_to?(:index)
+      unless @controller.respond_to?(:index)
         root = @roots.first
-        @node.class_exec { http.before { http.redirect root.http.route } }
+        @controller.class_exec { http.before { http.redirect root.http.route } }
       end
     end
 
@@ -20,18 +20,18 @@ module Saint
       root = normalize_path root
       raise '"%s" should be a directory' % root unless File.directory?(root)
 
-      node, host = @node, self
+      controller, host = @controller, self
 
       label = opts.fetch :label, File.basename(root)
       url = label.to_s.gsub(/[^\w|\d|\-]/i, '_')
       edit_max_size = opts[:edit] || opts[:edit_max_size] || Saint::FileManager::EDIT_MAX_SIZE
       upload_max_size = opts[:upload] || opts[:upload_max_size] || Saint::FileManager::UPLOAD_MAX_SIZE
 
-      @roots << (fm = node.const_set 'Saint__Fm__' << url, Class.new)
+      @roots << (fm = controller.const_set 'Saint__Fm__' << url, Class.new)
       fm.class_exec do
         include Presto::Api
         include Saint::Utils
-        http.map node.http.route url
+        http.map controller.http.route url
       end
 
       fs = fm.const_set :FileServer, Class.new
@@ -60,9 +60,9 @@ module Saint
       extend fm
     end
 
-    def extend node
+    def extend controller
 
-      node.class_exec do
+      controller.class_exec do
 
         http.before do
           @helper = Saint::FileManager::Helper.new

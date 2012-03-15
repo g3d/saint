@@ -1,19 +1,19 @@
 <div class="row">
-  <% Saint.ordered_nodes.select { |n| n.saint.dashboard }.each do |node|
-      if node.saint.model && orm = Saint::ORM.new(node.saint.model) -%>
+  <% Saint.ordered_controllers.select { |n| n.saint.dashboard }.each do |controller|
+      if controller.saint.model && orm = Saint::ORM.new(controller.saint.model) -%>
           <div class="span" style="min-width: 200px;">
 
             <div class="page-header">
 
               <i class="icon-list"></i>
               <strong>
-                <a href="<%= node.http.route %>">
-                  <%= node.saint.menu.label %>
+                <a href="<%= controller.http.route %>">
+                  <%= controller.saint.menu.label %>
                 </a>
               </strong>
               <%= orm.count[0] %>
               <div class="pull-right">
-                <a class="" href="<%= node.http.route :edit %>">
+                <a class="" href="<%= controller.http.route :edit %>">
                   <i class="icon-plus-sign"></i></a>
               </div>
             </div>
@@ -24,17 +24,17 @@
                     Latest Items
                 </span>
                 <ul>
-                  <% (orm.filter(orm.order(node.saint.pkey => :desc).merge(orm.limit(5)))[0]||[]).each do |item| %>
+                  <% (orm.filter(orm.order(controller.saint.pkey => :desc).merge(orm.limit(5)))[0]||[]).each do |item| %>
                       <li>
-                        <a href="<%= node.http.route :edit, item.send(node.saint.pkey) %>">
-                          <%= node.saint.h item, length: 50 %>
+                        <a href="<%= controller.http.route :edit, item.send(controller.saint.pkey) %>">
+                          <%= controller.saint.h item, length: 50 %>
                         </a>
                       </li>
                   <% end -%>
                 </ul>
               </div>
 
-              <% if (belongs_to = node.saint.belongs_to.select { |l, a| !a.is_tree? }).size > 0 -%>
+              <% if (belongs_to = controller.saint.belongs_to.select { |l, a| !a.is_tree? }).size > 0 -%>
                   <div>
                 <span class="label label-success">
                 Belongs To
@@ -43,8 +43,8 @@
                       <% belongs_to.each do |assoc|
                           label, assoc = assoc -%>
                           <li>
-                            <% if assoc.remote_node -%>
-                                <a href="<%= assoc.remote_node.http.route -%>">
+                            <% if assoc.remote_controller -%>
+                                <a href="<%= assoc.remote_controller.http.route -%>">
                                   <%== label %>
                                 </a>
                             <% else -%>
@@ -56,7 +56,7 @@
                   </div>
               <% end -%>
 
-              <% if (has_n = node.saint.has_n.select { |l, a| !a.is_tree? }).size > 0 -%>
+              <% if (has_n = controller.saint.has_n.select { |l, a| !a.is_tree? }).size > 0 -%>
                   <div>
                 <span class="label label-success">
                 Has N
@@ -65,8 +65,8 @@
                       <% has_n.each do |assoc|
                           label, assoc = assoc -%>
                           <li>
-                            <% if assoc.remote_node -%>
-                                <a href="<%= assoc.remote_node.http.route -%>">
+                            <% if assoc.remote_controller -%>
+                                <a href="<%= assoc.remote_controller.http.route -%>">
                                   <%== label %>
                                 </a>
                             <% else -%>
@@ -78,7 +78,7 @@
                   </div>
               <% end -%>
 
-              <% if node.saint.is_tree? -%>
+              <% if controller.saint.is_tree? -%>
                   <div>
                     <span class="label label-success">
                         Is Tree
@@ -89,14 +89,14 @@
             </div>
 
           </div>
-      <% elsif (file_manager = node.saint.file_manager) -%>
+      <% elsif (file_manager = controller.saint.file_manager) -%>
 
           <div class="span">
             <div class="page-header">
               <i class="icon-folder-close"></i>
               <strong>
-                <a href="<%= node.http.route %>">
-                  <%= node.saint.menu.label %>
+                <a href="<%= controller.http.route %>">
+                  <%= controller.saint.menu.label %>
                 </a>
               </strong>
             </div>

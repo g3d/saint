@@ -80,7 +80,7 @@ module Saint
     def items
       @pristine ?
           @opted_items :
-          Saint.ordered_nodes.map { |n| n.saint.menu }.compact + @opted_items
+          Saint.ordered_controllers.map { |n| n.saint.menu }.compact + @opted_items
     end
 
     def tree parent = nil

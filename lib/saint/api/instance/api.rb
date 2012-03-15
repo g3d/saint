@@ -3,13 +3,13 @@ module Saint
 
     attr_reader :orm
 
-    def initialize node_instance
+    def initialize controller_instance
 
-      @node, @node_instance = node_instance.class, node_instance
+      @controller, @controller_instance = controller_instance.class, controller_instance
 
-      @orm = Saint::ORM.new @node.saint.model, @node_instance
-      @node.saint.before.each_pair { |a, p| @orm.before a, &p }
-      @node.saint.after.each_pair { |a, p| @orm.after a, &p }
+      @orm = Saint::ORM.new @controller.saint.model, @controller_instance
+      @controller.saint.before.each_pair { |a, p| @orm.before a, &p }
+      @controller.saint.after.each_pair { |a, p| @orm.after a, &p }
 
     end
 
@@ -18,23 +18,23 @@ module Saint
     end
 
     def assets
-      @node.saint.render_assets
+      @controller.saint.render_assets
     end
 
     def menu
-      @node.saint.render_menu
+      @controller.saint.render_menu
     end
 
     def dashboard str = nil
-      @node.saint.render_dashboard @node_instance, str
+      @controller.saint.render_dashboard @controller_instance, str
     end
 
     def ordered
-      @ordered ||= Saint::ClassApi::Ordered.new @node_instance.http.params
+      @ordered ||= Saint::ClassApi::Ordered.new @controller_instance.http.params
     end
 
     def method_missing *args
-      @node.saint.send *args
+      @controller.saint.send *args
     end
 
   end

@@ -3,9 +3,9 @@
 
 <form action="<%= http.route *route_args %>" id="<%= form_id %>">
 
-  <%= @relation.remote_node.saint.filter_instances(http.params, :html) -%>
+  <%= @relation.remote_controller.saint.filter_instances(http.params, :html) -%>
 
-  <% @relation.remote_node.saint.subset_instances(http.params, :html).each do |subset_filters|
+  <% @relation.remote_controller.saint.subset_instances(http.params, :html).each do |subset_filters|
       field_attrs = {}
       subset_id = 'saint-filters-subsets-%s-%s' % [@relation.id, subset_filters.__id__] -%>
 
