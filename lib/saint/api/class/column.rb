@@ -214,7 +214,7 @@ module Saint
 
       # default type is string
       @type = (type || 'string').to_s
-      
+
       instance_variable_defined?(:@summary) || @summary = (text? || rte? ? false : true)
       instance_variable_defined?(:@crud) || @crud = true
       instance_variable_defined?(:@save) || @save = (plain? ? false : true)
@@ -318,12 +318,14 @@ module Saint
     # options to be used on select, radio and checkbox selectors
     def options *options
       if options.size > 0
-        if options.is_a?(Array)
-          options = Hash[options.zip(options.map { |o| Saint::Inflector.titleize(o) })]
-        else
-          options.is_a?(Hash) || raise('options should be either an Hash or an Array')
+        @options = {}
+        options.each do |a|
+          a.is_a?(Hash) ?
+              @options.update(a) :
+              a.is_a?(Array) ?
+                  @options.update(Hash[a.zip(a)]) :
+                  @options.update(a=>a)
         end
-        @options = options
       end
       @options
     end
