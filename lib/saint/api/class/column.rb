@@ -39,6 +39,8 @@ module Saint
       @columns[column.name] = column
     end
 
+    alias property column
+
     # by default, UI use a fieldset to display elements.
     # use this method to define a custom layout.
     #
@@ -213,7 +215,7 @@ module Saint
       proc && instance_exec(&proc)
 
       # default type is string
-      @type = (type || 'string').to_s
+      @type = (type || 'string').to_s.downcase
 
       instance_variable_defined?(:@summary) || @summary = (text? || rte? ? false : true)
       instance_variable_defined?(:@crud) || @crud = true
@@ -277,7 +279,7 @@ module Saint
     end
 
     def save?
-      plain? && @save.nil? ? false : @save
+      @scope ? @scope == :save : (plain? && @save.nil? ? false : @save)
     end
 
     # if set to true, item wont be saved if field is empty.
@@ -463,18 +465,18 @@ module Saint
       value row, :summary, controller_instance
     end
 
-    private
     # if block given, this method will set a proc to be executed when column value requested.
     # proc meaning is to modify given value, depending on given scope, and return modified version.
     # if proc returns nil, original value will be used.
     #
-    # given block will receive an single argument - current value.
+    # given block will receive back an single argument - current value.
     # block should modify value, if needed, and return it.
     # given block will have access to following helper methods:
     # *  #summary? - true if column is currently shown on Summary pages
     # *  #crud? - true if column is currently shown on CRUD pages
+    # *  #save? - true if row going to be saved to db
     # *  #row - current row object
-    # *  #scope - one of :summary or :crud
+    # *  #scope - one of :summary, :crud, :save
     #
     # block is executed inside currently running controller,
     # so it have access to any of #http, #view, #admin Api methods.
@@ -482,17 +484,17 @@ module Saint
     # if row and scope given, this method will extract, modify if needed,
     # and return value for current column
     #
-    # @param [Object] row
+    # @param [Object] row_or_value
     # @param [Symbol] scope
     # @param [Proc] proc
-    def value row = nil, scope = nil, controller_instance = nil, &proc
+    def value row_or_value = nil, scope = nil, controller_instance = nil, &proc
 
       return @value_proc = proc if proc
 
       # extracting value
-      value = (row||{})[@name]
+      value = scope == :save ? row_or_value : (row_or_value||{})[@name]
 
-      @row, @scope, @controller_instance = row, scope, controller_instance
+      @row, @scope, @controller_instance = row_or_value, scope, controller_instance
 
       if @options && summary?
         value = @options[value] unless checkbox? || multiple?

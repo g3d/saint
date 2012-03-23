@@ -88,13 +88,18 @@ module Saint
             ds, belongs_to = Hash.new, Hash.new
             saint.column_instances.select { |n, c| c.save? }.each_value do |column|
 
-              value = http.params[column.name.to_s]
+              value = column.value http.params[column.name.to_s], :save, self
 
               # nil columns are not saved/updated
               # to set column's value to nil, use SaintConst::NULL_VALUE as column value
               unless value
                 # exception making only checkbox columns, which can be nil
                 next unless column.checkbox?
+              end
+
+              # passwords not saved if no value given
+              if column.password?
+                next if value.nil? || (value && value.size == 0)
               end
 
               # joining values for checkbox and select-multiple columns
@@ -124,13 +129,15 @@ module Saint
             if @errors.size == 0
               if (row_id = row_id.to_i) > 0
                 @row, @errors = saint.orm.first(saint.pkey => row_id)
-                ds.each_pair { |c, v| @row[c] = v }
 
                 # avoiding infinite loops
                 is_loop = false
                 if @row && @errors.size == 0
-                  # just for convenience
-                  current_item_id = row_id
+
+                  # updating row with values from http params
+                  ds.each_pair { |c, v| @row[c] = v }
+                  
+                  current_item_id = row_id # just for convenience
                   belongs_to.select { |a, v| a.is_tree? }.each_pair do |assoc, opted_parent_id|
 
                     # fail if opted parent and current item are the same
@@ -155,7 +162,9 @@ module Saint
                 end
               else
                 is_new = true
+                # inserting associations keys into http params
                 belongs_to.each_pair { |a, val| ds[a.local_key] = val }
+                # creating new item using http params
                 @row, @errors = saint.orm.new(ds)
               end
 
