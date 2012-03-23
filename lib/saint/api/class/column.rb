@@ -477,6 +477,7 @@ module Saint
     # *  #save? - true if row going to be saved to db
     # *  #row - current row object
     # *  #scope - one of :summary, :crud, :save
+    # *   any method available to controller instance
     #
     # block is executed inside currently running controller,
     # so it have access to any of #http, #view, #admin Api methods.

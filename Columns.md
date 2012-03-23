@@ -248,43 +248,49 @@ Accepts: [true]
 ###value
 ---
 
-Define a block that will modify current value depending on scope.<br/>
-The block will receive current value as first argument.<br/>
-Current value will be set to value returned by block.
+Define a block that will modify current value depending on scope.
+
+When executed, the block will receive current value as first argument.
+
+Final value will be set to one returned by block.
+
+**However, if block returns nil or false, original value will be used**.
 
 Methods available inside block:
 
 *   summary? - true when column shown on Summary pages
 *   crud? - true when column shown on CRUD pages
+*   save? - true when row going to be saved to db
 *   row - current row, from which column value are extracted
-*   scope - one of :summary or :crud
+*   scope - one of :summary, :crud, :save
+*   any method available to controller instance
 
-So, if we want to prefix the author's name with Mr., we simply do like this:
-
-    saint.column :name do
-        value do |value|
-            'Mr. %s' % value
-        end
-    end
-
-
-Lets say we want to prefix the author's name with Mr. only on Summary pages:
+So, if we want to prefix the author's name with Mr. on Summary pages, we simply do like this:
 
     saint.column :name do
         value do |value|
-            summary? ? 'Mr. %s' % value : value
+            'Mr. %s' % value if summary?
         end
     end
-
 
 Lets say we want to prefix the author's name with Mr. for men,  Ms. for women and empty for unknown:
 
     saint.column :name do
         value do |value|
-            prefix = nil
-            prefix = 'Mr.' if row.gender == 'male'
-            prefix = 'Ms.' if row.gender == 'female'
-            '%s %s' % [prefix, value]
+            if summary?
+                prefix = nil
+                prefix = 'Mr.' if row.gender == 'male'
+                prefix = 'Ms.' if row.gender == 'female'
+                '%s %s' % [prefix, value]
+            end
         end
+    end
+
+Or encrypting password before row saved to db:
+
+    saint.column :password, :password do
+      value do |val|
+        Digest::MD5.hexdigest(val) if save? && val && val.size > 0
+      end
     end
 
