@@ -26,7 +26,8 @@ fieldset legend {
 }
 
 .content {
-    padding-bottom: 50%;
+    padding-bottom: 25em;
+    margin-bottom: 25em;
 }
 
 .centered {

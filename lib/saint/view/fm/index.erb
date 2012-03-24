@@ -1,4 +1,4 @@
-<% node = @root_folder || @active_dir
+<% current_dir = @root_folder || @active_dir
    search_query = @query_string[:q]
 %>
 <%= Saint::FileServer.assets do
@@ -12,7 +12,7 @@
     cd 'jquery.plupload.queue'
     css 'css/jquery.plupload.queue.css'
     js 'jquery.plupload.queue.js'
-    
+
 end %>
 
 <script type="text/javascript">
@@ -38,8 +38,8 @@ end %>
                 var src = $(ui.draggable).attr('droppable-title');
                 if (src == dst) return false;
                 Saint.valid_POST(
-                        '<%= http.route(:move) %>',
-                        {src: src, dst: dst, current: '<%= @active_dir ? @active_dir[:path] : nil %>'},
+                        '<%= http.route(:move, @query_string) %>',
+                        {src: src, dst: dst},
                         function(response) {
                             window.location = response.location;
                         }
@@ -53,7 +53,7 @@ end %>
                 runtimes : 'html5,gears,flash,html4',
                 flash_swf_url : '<%= Saint::FileServer['vendor/plupload/js/plupload.flash.swf'] %>',
                 url : '<%= http.route(:upload) %>',
-                multipart_params: {path: '<%= node[:path] %>'},
+                multipart_params: {path: '<%= current_dir %>'},
                 max_file_size: '<%= setup.upload_max_size %>b',
                 init: {
                     FileUploaded: function(uploader, file, response) {
@@ -76,7 +76,7 @@ end %>
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
 
-    <h3>Uploading files into "<%== node[:name] %>"</h3>
+    <h3>Uploading files into "<%== current_dir %>"</h3>
   </div>
   <div class="modal-body">
     <div id="saint-fm-uploader-queue"></div>
@@ -110,7 +110,7 @@ end %>
           </li>
           <li>
             <a class="void-link"
-               onclick="if(confirm('<%= ('Removing %s/%s/ folder and ANYTHING under it?' % [node[:dir], node[:name]]) if node[:dir?] %> This action can not be undone. Continue?')){
+               onclick="if(confirm('<%= ('Removing %s/ folder and ANYTHING under it?' % current_dir) %> This action can not be undone. Continue?')){
                        Saint.submit_valid_form('saint-fm-forms-delete', function(response){window.location=response.location});
                        }else{return false};">
               <i class="icon-trash"></i>
@@ -124,43 +124,44 @@ end %>
   <div class="tab-content">
 
     <div class="tab-pane active" id="saint-fm-toolbar-search">
-      <form action="<%= http.route @encoded_path %>">
+      <form action="<%= http.path %>">
         <input type="text" name="q" value="<%== search_query %>" id="saint-fm-search_field" placeholder='insert at least 2 chars' onkeyup="$('#saint-fm-search-submit').attr('disabled', $(this).val().length < 2);"/>
 
         <input id="saint-fm-search-submit" type="submit" value="search" class="btn topped" disabled="true"/>
 
         <% if search_query -%>
-            <a href="<%= http.route @encoded_path %>" class="btn topped">
+            <a href="<%= http.path %>" class="btn topped">
               reset
             </a>
         <% end -%>
       </form>
     </div>
 
-    <% unless @root_folder -%>
-        <div class="tab-pane" id="saint-fm-toolbar-rename">
-          <%= saint_view.render_view 'fm/partial/rename', node: node %>
-        </div>
-    <% end -%>
-
     <div class="tab-pane" id="saint-fm-toolbar-create">
 
-      <form action="<%= http.route(:create, encode_path(@path)) %>" id="saint-fm-toolbar-create-<%= node.__id__ %>-form" method="post">
-        <input type="hidden" name="type" id="saint-fm-toolbar-create-<%= node.__id__ %>-form-type"/>
+      <form action="<%= http.route(:create, @query_string) %>" id="saint-fm-toolbar-create-<%= current_dir.__id__ %>-form" method="post">
+
+        <input type="hidden" name="type" id="saint-fm-toolbar-create-<%= current_dir.__id__ %>-form-type"/>
         <input type="text" name="name" value="" placeholder="Create new File or Folder..." class="disable_enter_key saint-input-medium"/>
 
-        <a class="btn topped" onclick="Saint.Fm.create_item('saint-fm-toolbar-create-<%= node.__id__ %>-form', 'file');">
+        <a class="btn topped" onclick="Saint.Fm.create_item('saint-fm-toolbar-create-<%= current_dir.__id__ %>-form', 'file');">
           <i class="icon-file"></i>
           file
         </a>
 
-        <a class="btn topped" onclick="Saint.Fm.create_item('saint-fm-toolbar-create-<%= node.__id__ %>-form', 'folder');">
+        <a class="btn topped" onclick="Saint.Fm.create_item('saint-fm-toolbar-create-<%= current_dir.__id__ %>-form', 'folder');">
           <i class="icon-folder-close"></i>
           folder
         </a>
       </form>
 
     </div>
+
+    <% unless @root_folder -%>
+        <div class="tab-pane" id="saint-fm-toolbar-rename">
+          <%= view.render_view 'fm/partial/rename', path: current_dir %>
+        </div>
+    <% end -%>
 
   </div>
 
@@ -194,7 +195,7 @@ end %>
                      class="saint-fm-draggable saint-fm-droppable saint-fm-dir saint-selectable <%= fm_class %>">
 
                   <img src="<%= node[:icon] %>"/>
-                  <a href="<%= http.route(node[:path_encoded]) %>">
+                  <a href="<%= http.route(dir: node[:path]) %>">
                     <%= node[:name] %>
                   </a>
                   &nbsp;&nbsp;&nbsp;&nbsp;
@@ -207,7 +208,7 @@ end %>
                      class="saint-fm-draggable saint-selectable saint-fm-file">
 
                   <img src="<%= node[:icon] %>" class="saint-fm-node-icon"/>
-                  <a href="<%= http.path + '?file=' + node[:path_encoded] %>">
+                  <a href="<%= http.route({dir: current_dir, file: node[:path]}.merge(@query_string)) %>">
                     <%= node[:name] %>
                   </a>
                       <span class="saint-fm-node-size">
@@ -233,7 +234,6 @@ end %>
        Find.find(setup.root).select { |p| ::File.file?(p) }.each do |p|
            if ::File.basename(p) =~ /#{search_query}/
                file = @helper.file(p).merge(path: p.sub(setup.root, ''))
-               file[:path_encoded] = encode_path(file[:path])
                file[:size] = @helper.size(p, true)
                if file[:viewable?]
                    file[:geometry] = @helper.geometry(p)
@@ -245,38 +245,27 @@ end %>
 %>
     <div class="modal" id="saint-fm-search_results">
       <div class="modal-header">
-        <a href="<%= http.route @encoded_path %>" class="close">×</a>
+        <a href="<%= http.path %>" class="close">×</a>
 
         <h3>Found <%= files.size %> files for "<%== search_query %>"</h3>
       </div>
       <div class="modal-body">
+        <% files.each do |file| -%>
+            <div class="alert">
+              <img src="<%= file[:icon] %>"/>
+              <a href="<%= http.route @query_string.merge(file: file[:path]) %>">
+                <%= file[:name] %>
+              </a>
+              - <%= file[:size] %>
+              <%= (g = file[:geometry]) && ' - %spx' % g.join('x') %>
+              <br/>
+              in
+              <%= (dirname = File.dirname(file[:path])) && '/%s%s' % [File.basename(setup.root), (dirname == '.' ? '' : dirname.scan(/.{1,#{80}}/).join('<br/>'))] %>
 
-        <table>
-          <% files.each do |file| -%>
-              <tr>
-                <td>
-                  <img src="<%= file[:icon] %>"/>
-                </td>
-                <td>
-                  <a href="<%= http.route @encoded_path, @query_string.update(file: file[:path_encoded]) %>">
-                    <%= file[:name] %>
-                  </a>
-                  - <%= file[:size] %>
-                  <%= (g = file[:geometry]) && ' - %spx' % g.join('x') %>
-                </td>
-              </tr>
-              <tr>
-                <td></td>
-                <td>
-                  <div class="saint-text_note ellipsis">
-                    <%= (dirname = File.dirname(file[:path])) && '%s/%s' % [File.basename(setup.root), (dirname == '.' ? '' : dirname.scan(/.{1,#{80}}/).join('<br/>'))] %>
-                  </div>
-                </td>
-              </tr>
-          <% end -%>
-        </table>
+            </div>
+        <% end -%>
       </div>
     </div>
 <% end -%>
 
-<%= saint_view.render_view('fm/partial/delete', node: node) unless @root_folder -%>
+<%= view.render_view('fm/partial/delete', path: current_dir) unless @root_folder -%>

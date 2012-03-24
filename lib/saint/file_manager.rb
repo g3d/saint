@@ -21,6 +21,7 @@ module Saint
             'c' => 'edit', 'tmp' => 'edit', 'm3u' => 'edit', 'cgi' => 'edit',
             'makefile' => 'edit', 'gemfile' => 'edit', 'readme' => 'edit',
             'changelog' => 'edit', 'license' => 'edit', 'md' => 'edit',
+            'yml' => 'edit', 'yaml' => 'edit', 'json' => 'edit',
         }
 
         @viewable_files = {

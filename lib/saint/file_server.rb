@@ -2,12 +2,14 @@ module Saint
   class FileServer
 
     DOCUMENT_ROOT = '/__saint-file_server__/'.freeze
+    EXT = '.saint-fs'.freeze
 
     include Presto::Api
 
     http.map DOCUMENT_ROOT
-    http.file_server '%s/static' % Saint.root do |env|
-      env['PATH_INFO'] = env['PATH_INFO'].sub(/\.saint\-fs$/i, '')
+
+    def index *args
+      http.send_file File.join(Saint.root, 'static', *args).sub(/#{EXT}$/i, '')
     end
 
     class Assets
@@ -56,7 +58,7 @@ module Saint
       include Saint::Utils
 
       def [] path
-        '%s%s.saint-fs' % [DOCUMENT_ROOT, normalize_path(path)]
+        [DOCUMENT_ROOT, normalize_path(path), EXT].join
       end
 
       def assets &proc

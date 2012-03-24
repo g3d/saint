@@ -37,7 +37,7 @@ module Saint
       @ipp
     end
 
-    alias :ipp :items_per_page
+    alias ipp items_per_page
 
     def tree_colors *colors
       @tree_colors = colors if colors.size > 0
