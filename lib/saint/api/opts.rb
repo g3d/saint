@@ -34,14 +34,14 @@ module Saint
         define_singleton_method :opts do |*managers|
           @@opts ||= Class.new do
             managers.each do |manager|
-              manager.class_exec { manager.opts_updater }
-              manager.opts.opts.each_key do |opt|
+              manager.opts_updater
+              manager.opts_pool.opts.each_pair do |opt, setup|
                 define_singleton_method opt do
                   val = nil
-                  managers.each { |m| break if val = m.opts[opt] }
+                  managers.each { |m| break if val = m.opts_pool[opt] }
                   # typecasting
-                  if (manager.opts.opts[opt]['type'] rescue nil) == 'boolean'
-                    val = val == 'true' || '1' || 1 ? true : false
+                  if setup['type'] == 'boolean'
+                    val = 'true' == val ? true : false
                   end
                   val
                 end

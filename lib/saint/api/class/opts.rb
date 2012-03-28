@@ -123,7 +123,7 @@ module Saint
 
         include Saint::Utils
 
-        define_singleton_method :opts do
+        define_singleton_method :opts_pool do
           pool
         end
 
