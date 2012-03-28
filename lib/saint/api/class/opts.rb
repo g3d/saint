@@ -8,22 +8,23 @@ module Saint
       def initialize pool, table = nil, &proc
         @pool = pool || Presto::Cache::Memory.new
         @pool = @pool.new(normalize_name(table)) if table
-        @opts = Hash.new
+        @opts = {}
         self.instance_exec &proc
       end
 
       # add new opt to OptsManager.
       # 
       # @param [Symbol] name
-      # @param [Hash] opts
-      # @option opts [Symbol] :type (:string) one of :string, :text, :select
-      # @option opts [String] :details option description
-      # @option opts [Object] :default default value
-      # @option opts [Hash, Array] :options options to be used by :select type
-      def opt name, opts = {}
+      # @param [Hash] type_and_or_opts
+      # @option type_and_or_opts [String] :details option description
+      # @option type_and_or_opts [Object] :default default value
+      # @option type_and_or_opts [Hash, Array] :options options to be used by :select type
+      def opt name, *type_and_or_opts
+        type, opts = :string, {}
+        type_and_or_opts.each { |a| a.is_a?(Hash) ? opts.update(a) : type = a }
         name = normalize_name(name)
         opts['name'] = name
-        opts['type'] = opts.delete(:type) || :string
+        opts['type'] = type.to_s
         opts['details'] = opts.delete(:details)
         opts['default_value'] = opts.delete(:default)
         if options = opts.delete(:options)
@@ -64,8 +65,8 @@ module Saint
     #      class DefaultOptions
     #        # this will use an mongodb pool
     #        saint.opts Presto::Cache::MongoDB.new(Mongo::Connection.new.db('options')) do
-    #          opt :default_meta_title, default: 'TheBestSiteEver'
-    #          opt :items_per_page, 10, type: :text
+    #          opt :default_meta_title, :text, default: 'TheBestSiteEver'
+    #          opt :items_per_page, 10
     #        end
     #      end
     #
@@ -167,9 +168,11 @@ module Saint
               case scope
                 when :crud
                   if opt = pool.opts[row.name]
+
                     context = {
                         row: row,
-                        options: opt['options']
+                        options: opt['options'],
+                        default: opt['default_value']
                     }
                     saint_view.render_view('opts/%s' % opt['type'], context)
                   end
@@ -179,8 +182,6 @@ module Saint
             end
           end
         end
-
-        saint.filter :name
 
         saint.after :save do |row|
           pool[row.name.to_sym] = row.value

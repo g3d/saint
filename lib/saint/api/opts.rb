@@ -39,6 +39,10 @@ module Saint
                 define_singleton_method opt do
                   val = nil
                   managers.each { |m| break if val = m.opts[opt] }
+                  # typecasting
+                  if (manager.opts.opts[opt]['type'] rescue nil) == 'boolean'
+                    val = val == 'true' || '1' || 1 ? true : false
+                  end
                   val
                 end
               end

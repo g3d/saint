@@ -12,13 +12,15 @@ Given model should have at least two columns: name and value.
 To define a opt, use `opt` inside block:
 
     saint.opts do
-        opt :favourite_author
+        opt :name, :type, :options
     end
 
+Only name are required.<br/>
+Default type is :string<br/>
+You can ommit type and pass options directly after name.
 
 **Options accepted by** `opt`:
 
-*   :type - one of :string, :text, :select. defaulted to :string
 *   :default - default value. to be used until you edit it.
 *   :options - options to be used by :select type.
 
@@ -29,22 +31,26 @@ To define a opt, use `opt` inside block:
         opt :some_opt
         # UI will draw an text input
 
-        opt :some_opt, type: :text
+        opt :some_opt, :text
         # UI will draw an textarea
 
-        opt :some_opt, type: :text, default: 'some value'
+        opt :some_opt, :text, default: 'some value'
         # UI: <textarea...>some value</textarea>
 
-        opt :status, type: :select, options: {1=>'Active', 0=>'Suspended'}
+        opt :status, :select, options: {1=>'Active', 0=>'Suspended'}
         # UI: <select...>
         #     <option value="1">Active</option>
         #     <option value="0">Suspended</option>
         
-        opt :color, type: :select, options: ['red', 'green', 'blue'], default: 'green'
+        opt :color, :select, options: ['red', 'green', 'blue'], default: 'green'
         # UI: <select...>
         #     <option value="red">red</option>
         #     <option value="green" selected>green</option>
         #     <option value="blue">blue</option>
+
+        opt :color, :boolean
+        # UI: <input type="radio" ...>Yes
+        #     <input type="radio" ...>No
     end
 
 
@@ -63,8 +69,8 @@ by passing it as first argument to `opts`.
             # this will use an mongodb pool
             pool = Presto::Cache::MongoDB.new(Mongo::Connection.new.db('options'))
             saint.opts pool do
-                opt :default_meta_title, default: 'TheBestSiteEver'
-                opt :items_per_page, 10, type: :text
+                opt :default_meta_title, :text, default: 'TheBestSiteEver'
+                opt :items_per_page, default: 10
             end
         end
 
@@ -85,7 +91,7 @@ After Opts Managers defned, any class may include `Saint::OptsApi` and read opti
 The scenarios is a s simple as:
 
 *   include `Saint::OptsApi`
-*   let saint know what managers to read opts from: opts Manager1, Manager2
+*   let saint know what managers to read opts from: `opts Manager1, Manager2`
 *   use `opts` to read options: `opts.some_options`, `opts.some_another_option`
 
 *Example:*
