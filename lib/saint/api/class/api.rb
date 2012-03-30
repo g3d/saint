@@ -168,7 +168,8 @@ module Saint
       else
         if row && @header_args.size == 0
           # no snippets defined, so using first column
-          header << escape_html(column_instances.first.last.value(row))
+          value = row[column_instances.first.last.name]
+          header << (::BigDecimal === value ? '%.2f' % value : value)
         end
         @header_args.each do |a|
           (s = column_format(a, row)) && s.strip.size > 0 && header << escape_html(s)

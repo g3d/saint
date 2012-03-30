@@ -189,7 +189,7 @@ module Saint
 
         def head row_id
           if row = saint.orm.first(saint.pkey => row_id.to_i)[0]
-            saint.h row
+            saint.h row, label: false
           end
         end
 

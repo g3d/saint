@@ -514,8 +514,10 @@ module Saint
       return value if password?
 
       # typecasting
-      return format_date__time(@type, value, scope == :summary) if date? || date_time? || time?
-      return '%.2f' % value if ::BigDecimal === value
+      if summary? || crud?
+        return format_date__time(@type, value, scope == :summary) if date? || date_time? || time?
+        return '%.2f' % value if ::BigDecimal === value
+      end
 
       @rbw && value = @rbw.wrap(value)
       value.is_a?(String) ? (html? ? value : escape_html(value)) : value
