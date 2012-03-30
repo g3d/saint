@@ -27,7 +27,7 @@
                   <% (orm.filter(orm.order(controller.saint.pkey => :desc).merge(orm.limit(5)))[0]||[]).each do |item| %>
                       <li>
                         <a href="<%= controller.http.route :edit, item.send(controller.saint.pkey) %>">
-                          <%= controller.saint.h item, length: 50 %>
+                          <%= controller.saint.h item, length: 50, label: nil %>
                         </a>
                       </li>
                   <% end -%>
