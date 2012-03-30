@@ -9,7 +9,7 @@
     <p id="saint-crud-header">
       <% if @row_id > 0 -%>
           <strong>
-            <%= saint.h @row %></strong>
+            <%= saint.h @row, label: nil %></strong>
       <% else -%>
           <div class="alert">
             <%= 'Creating new %s' % label__singular %>

@@ -159,19 +159,18 @@ module Saint
       row, opts = nil, {}
       row_or_opts.each { |a| a.is_a?(Hash) ? opts.update(a) : row = a }
 
-      label = ((l=opts[:label]) && escape_html(l.to_s)) || label()
+      label = opts.has_key?(:label) ? (escape_html(opts[:label]) if opts[:label]) : label()
       join = escape_html(opts.fetch :join, ', ')
-      header = Array.new
+      header = []
 
       if @header_proc
         header << escape_html(@header_proc.call(row).to_s)
       else
-        args = @header_args
-        if row && args.size == 0
-          # no snippets defined, so using first model property
-          args = [Saint::ORMUtils.properties(@controller.saint.model).keys.first]
+        if row && @header_args.size == 0
+          # no snippets defined, so using first column
+          header << escape_html(column_instances.first.last.value(row))
         end
-        args.each do |a|
+        @header_args.each do |a|
           (s = column_format(a, row)) && s.strip.size > 0 && header << escape_html(s)
         end
       end
@@ -254,7 +253,7 @@ module Saint
 
     def render_dashboard scope, str = nil
       saint_view(scope).render_master_layout do
-         "%s\n%s" % [saint_view(scope).render_view('dashboard'), str]
+        "%s\n%s" % [saint_view(scope).render_view('dashboard'), str]
       end
     end
 

@@ -91,7 +91,7 @@ module Saint
 
     def column_format arg, row
 
-      chunks = Array.new
+      chunks = []
 
       evaluate = lambda do |chunk|
         obj = row

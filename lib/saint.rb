@@ -8,6 +8,7 @@ require 'digest'
 require 'find'
 require 'base64'
 require 'fileutils'
+require 'bigdecimal'
 
 module Saint
 
