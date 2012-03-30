@@ -91,7 +91,7 @@ module Saint
     #      saint.header label: 'CMS Pages'
     #      # now Page.saint.h and Page.saint.h(page) will return "CMS Pages"
     #
-    #      # setting custom header for defined pages:
+    #      # setting custom header on CRUD pages:
     #      saint.header :name, ' (by #author.name)'
     #      # now Page.saint.h will return "Pages"
     #      # however, Page.saint.h(page) will return "Pages | page.name (by page.author.name)"

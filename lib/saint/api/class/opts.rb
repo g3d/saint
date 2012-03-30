@@ -123,21 +123,8 @@ module Saint
 
         include Saint::Utils
 
-        define_singleton_method :opts_pool do
-          pool
-        end
-
-        define_singleton_method :opts_updater do
-          orm = Saint::ORM.new saint.model, self
-          pool.opts.each_pair do |opt, setup|
-            if row = orm.first(name: opt)[0]
-              value = row.value
-            else
-              value = setup['default_value']
-              orm.create(name: opt, value: value)
-            end
-            pool[opt] = value
-          end
+        saint.header label: nil do |row|
+          Saint::Inflector.titleize(row.name) if row
         end
 
         # making sure all options are persisted.
@@ -185,6 +172,23 @@ module Saint
 
         saint.after :save do |row|
           pool[row.name.to_sym] = row.value
+        end
+
+        define_singleton_method :opts_pool do
+          pool
+        end
+
+        define_singleton_method :opts_updater do
+          orm = Saint::ORM.new saint.model, self
+          pool.opts.each_pair do |opt, setup|
+            if row = orm.first(name: opt)[0]
+              value = row.value
+            else
+              value = setup['default_value']
+              orm.create(name: opt, value: value)
+            end
+            pool[opt] = value
+          end
         end
 
       end
