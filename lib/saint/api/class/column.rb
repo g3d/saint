@@ -149,11 +149,9 @@ module Saint
     def build_columns
       return unless configurable?
       return if @columns_opted == false
-      selector(ORMUtils.properties(model), @columns_opted, @columns_ignored).each do |c|
-        name, type = c
-        args = name, type
-        args << {summary: false} if type == 'text'
-        column *args
+      selector(ORMUtils.properties(model), @columns_opted, @columns_ignored).each do |setup|
+        setup << {summary: false} if setup.last == 'text'
+        column *setup
       end
     end
 
@@ -508,7 +506,6 @@ module Saint
       if @value_proc && val = self.instance_exec(value, &@value_proc)
         value = val
       end
-      @row, @scope, @controller_instance = nil
 
       # passwords are not wrapped
       return value if password?
@@ -519,6 +516,7 @@ module Saint
         return '%.2f' % value if ::BigDecimal === value
       end
 
+      @row, @scope, @controller_instance = nil
       @rbw && value = @rbw.wrap(value)
       value.is_a?(String) ? (html? ? value : escape_html(value)) : value
     end
