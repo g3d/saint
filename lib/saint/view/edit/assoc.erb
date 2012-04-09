@@ -14,7 +14,7 @@
               Select Existing
             </a>
           </li>
-          <% if row_id > 0 -%>
+          <% if row_id > 0 && rel.readonly.nil? -%>
               <li>
                 <a href="#<%= tab_id %>-create_new" data-toggle="tab">
                   <i class="icon-plus-sign"></i>
