@@ -33,25 +33,27 @@
      update_relation_action = :assoc__has_n__update_through_model if @relation.through_model
      update_relation_url = http.route update_relation_action
      items.each do |remote_item|
-         remote_id = remote_item[@relation.remote_pkey]
-         children = tree ? remote_item.send(tree[:has_n].children) : []
-         self_color = color || Saint.tree_colors.sample
-         bg_color = color || (self_color if children.size > 0)
-         children_container_id = 'saint-assoc-has_n-children_container-%s-%s-%s-%s' % [@relation.id, @attached, level, remote_id]
+       remote_id = remote_item[@relation.remote_pkey]
+       children = tree ? remote_item.send(tree[:has_n].children) : []
+       self_color = color || Saint.tree_colors.sample
+       bg_color = color || (self_color if children.size > 0)
+       children_container_id = 'saint-assoc-has_n-children_container-%s-%s-%s-%s' % [@relation.id, @attached, level, remote_id]
   -%>
 
       <tr style="<%= "background-color: ##{bg_color}" if bg_color && @attached == 0 %>">
         <% if attachable -%>
             <td class="nowrap">
               <label class="checkbox">
-                <% if @attached == 0
-                       attached = (@attached_keys_or_remote_item||[]).include?(remote_id)
-                       disabled = (@relation.is_tree? && (@local_id == remote_id || (@local_item && @local_item.parent_id == remote_id))) ||
-                               (@relation.belongs_to? && remote_item.send(@relation.remote_key) == @local_id) -%>
+                <% readonly = !saint.update
+                   if @attached == 0
+                     attached = (@attached_keys_or_remote_item||[]).include?(remote_id)
+                     disabled = (@relation.is_tree? && (@local_id == remote_id || (@local_item && @local_item.parent_id == remote_id))) ||
+                             (@relation.belongs_to? && remote_item.send(@relation.remote_key) == @local_id)
+                     disabled = true unless saint.update -%>
 
                     <input type="checkbox"
                            <%= 'checked="true"' if attached -%>
-                           <%= 'disabled="true"' if disabled -%>
+                           <%= 'disabled="true"' if disabled or readonly -%>
                            <% unless disabled -%>
                            onclick="return saint__assoc__has_n__update(
                                    '<%= update_relation_url %>',
@@ -66,6 +68,7 @@
                 <% else -%>
 
                     <input type="checkbox" checked="true"
+                           <%= 'disabled="true"' if disabled or readonly -%>
                            onclick="return saint__assoc__has_n__update(
                                    '<%= update_relation_url %>',
                                    '<%= @relation.id %>',

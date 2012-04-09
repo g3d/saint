@@ -42,6 +42,7 @@
   -%>
       <tr class="saint-selectable" style="<%= "background-color: ##{bg_color}" if bg_color %>">
         <% if attachable
+             readonly = !saint.update
                attached = @attached_keys_or_remote_item.respond_to?(@relation.remote_pkey) &&
                        @attached_keys_or_remote_item.send(@relation.remote_pkey) == remote_id
                disabled = @relation.is_tree? &&
@@ -52,7 +53,7 @@
                 <input type="radio"
                        name="saint-belongs_to_selector-<%= @relation.id %>"
                        <%= 'checked="true"' if attached -%>
-                       <%= 'disabled="true"' if disabled -%>
+                       <%= 'disabled="true"' if disabled or readonly -%>
                        <% if @local_id > 0 -%>
                        onclick="return saint__assoc__belongs_to__update(
                                '<%= @relation.local_controller.http.route(:save, @local_id) %>',

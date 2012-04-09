@@ -323,7 +323,7 @@ module Saint
               @options.update(a) :
               a.is_a?(Array) ?
                   @options.update(Hash[a.zip(a)]) :
-                  @options.update(a=>a)
+                  @options.update(a => a)
         end
       end
       @options
@@ -490,7 +490,9 @@ module Saint
       return @value_proc = proc if proc
 
       # extracting value
-      value = scope == :save ? row_or_value : (row_or_value||{})[@name]
+      value = scope == :save ?
+          row_or_value :
+          (row_or_value.respond_to?(@name) ? row_or_value.send(@name) : row_or_value[@name])
 
       @row, @scope, @controller_instance = row_or_value, scope, controller_instance
 

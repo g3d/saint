@@ -32,7 +32,7 @@
                 row, page = setup -%>
                 <li class="<%= 'active' if row.send(saint.pkey) == @row_id %>">
                   <a href="<%= http.route :edit, row.send(saint.pkey), @pager.query_string(page) %>">
-                    <%= saint.h row, length: 20 %>
+                    <%= saint.h row %>
                   </a>
                 </li>
             <% end -%>

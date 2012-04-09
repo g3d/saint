@@ -10,6 +10,7 @@
         <div>
           <p class="alert alert-info">
             <input type="checkbox" checked="true"
+                   <%= 'disabled="true"' unless saint.update -%>
                    <% if @local_id > 0 -%>
                    onclick="return saint__assoc__belongs_to__update(
                            '<%= @relation.local_controller.http.route(:save, @local_id) %>',
