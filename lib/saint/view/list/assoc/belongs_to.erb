@@ -25,7 +25,7 @@
             Belongs to:
             <a href="<%= @relation.remote_controller ? @relation.remote_controller.http.route(:edit, remote_item[saint.pkey]) : 'javascript:void(0);' %>" target="_blank">
               <%= @relation.remote_controller ?
-                          @relation.remote_controller.saint.h(remote_item) :
+                          @relation.remote_controller.saint.h(remote_item, label: false) :
                           @remote_columns.map { |c| val = c.summary_value(remote_item, self).to_s; val.size > 0 ? val : nil }.compact.join(', ')
               %>
             </a>

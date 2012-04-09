@@ -39,7 +39,7 @@
               </fieldset>
           <% end -%>
 
-          <% unless rel.readonly -%>
+          <% if rel.belongs_to? || rel.readonly.nil? -%>
               <fieldset>
                 <legend>
                   Select Related <%= rel.label %>
