@@ -1,8 +1,8 @@
 <% row_id = row.send(saint.pkey).to_i
    associations.each_value do |rel|
-       tab_id = 'saint-tabs-associations-%s-%s' % [rel.type, rel.name]
-       form_id = 'saint-forms-CRUD-%s-create_new' % rel.name
-       label__singular = Saint::Inflector.singularize rel.label -%>
+     tab_id = 'saint-tabs-associations-%s-%s' % [rel.type, rel.name]
+     form_id = 'saint-forms-CRUD-%s-create_new' % rel.name
+     label__singular = Saint::Inflector.singularize rel.label -%>
 
     <div class="tab-pane" id="<%= tab_id %>">
 
@@ -39,14 +39,16 @@
               </fieldset>
           <% end -%>
 
-          <fieldset>
-            <legend>
-              Select Related <%= rel.label %>
-            </legend>
-            <div id="<%= rel.id %>0">
-              <%= http.xhr_get :assoc__any__remote_items, rel.id, row_id, 0 %>
-            </div>
-          </fieldset>
+          <% unless rel.readonly -%>
+              <fieldset>
+                <legend>
+                  Select Related <%= rel.label %>
+                </legend>
+                <div id="<%= rel.id %>0">
+                  <%= http.xhr_get :assoc__any__remote_items, rel.id, row_id, 0 %>
+                </div>
+              </fieldset>
+          <% end -%>
 
         </div>
 
@@ -60,7 +62,7 @@
                   </div>
               <% else -%>
                   <% if rel.remote_controller_create_button
-                         remote_belongs_to = rel.remote_controller.saint.belongs_to || {} -%>
+                       remote_belongs_to = rel.remote_controller.saint.belongs_to || {} -%>
 
                       <% if remote_belongs_to.size > 0 -%>
                           <div class="tabbable">
@@ -100,7 +102,7 @@
 
                             <%= render_elements crud_columns(rel.remote_controller.saint.column_instances), controller: rel.remote_controller %>
                             <% remote_belongs_to.each_value do |remote_rel|
-                                associated = rel.local_model.__id__ == remote_rel.remote_model.__id__ -%>
+                              associated = rel.local_model.__id__ == remote_rel.remote_model.__id__ -%>
                                 <input type="hidden" name="<%= remote_rel.local_key %>"
                                        value="<%= associated ? row_id : SaintConst::NULL_VALUE %>"
                                        id="<%= remote_rel.id %>-element"/>
@@ -109,7 +111,7 @@
                         </div>
 
                         <% remote_belongs_to.each_value do |remote_rel|
-                            associated = rel.local_model.__id__ == remote_rel.remote_model.__id__ -%>
+                          associated = rel.local_model.__id__ == remote_rel.remote_model.__id__ -%>
 
                             <div id="<%= tab_id %>-create_new-tabs-<%= remote_rel.id %>" class="tab-pane">
                               <% if row && associated -%>
@@ -147,7 +149,7 @@
                       </button>
 
                   <% else
-                         snippet = 'controller %s::%s, true' % [self.class.name.split('::').shift, Saint::Inflector.classify(rel.name)] -%>
+                       snippet = 'controller %s::%s, true' % [self.class.name.split('::').shift, Saint::Inflector.classify(rel.name)] -%>
                       Please insert <code><%= snippet %></code> into
                       relation block.
                       <p>
@@ -159,7 +161,6 @@
             </div>
         <% end -%>
       </div>
-
 
     </div>
 <% end -%>
