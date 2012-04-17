@@ -492,7 +492,7 @@ module Saint
       # extracting value
       value = scope == :save ?
           row_or_value :
-          (row_or_value.respond_to?(@name) ? row_or_value.send(@name) : row_or_value[@name])
+          (row_or_value.respond_to?(@name) ? row_or_value.send(@name) : (row_or_value||{})[@name])
 
       @row, @scope, @controller_instance = row_or_value, scope, controller_instance
 
