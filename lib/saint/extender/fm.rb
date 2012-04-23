@@ -50,7 +50,7 @@ module Saint
           end
 
           def [] path
-            [http.route, Presto::Utils.normalize_path(path), ext].join
+            [http.route, ::Presto::Utils.normalize_path(path), ext].join
           end
         end
       end

@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.9.2'
 
-  s.add_dependency 'presto', '>= 0.3.4'
+  s.add_dependency 'presto', '>= 0.3.9'
   s.add_dependency 'erubis'
   s.add_dependency 'json'
   s.add_dependency 'mini_magick', '>= 3.0'
