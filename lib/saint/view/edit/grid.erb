@@ -4,23 +4,27 @@
   <tr class="grid-row">
     <% tdn, tdc = grid.columns, 0
        elements.each_pair do |el, el_html|
-           width = el.grid_width -%>
+         width = el.grid_width -%>
 
         <td class="grid-column topped" style="<%= ('width: %s;' % width) if width %>">
-          <fieldset style="<%= el.layout_style %>" class="<%= el.layout_class %>">
-            <legend><%= el.label %></legend>
-            <%= el_html %>
-          </fieldset>
+          <% if el.layout -%>
+              <%= el.layout.sub("[label]", el.label).sub("[field]", el_html) %>
+          <% else -%>
+              <fieldset style="<%= el.layout_style %>" class="<%= el.layout_class %>">
+                <legend><%= el.label %></legend>
+                <%= el_html %>
+              </fieldset>
+          <% end -%>
         </td>
 
         <% if (tdc += 1) == tdn
-               tdc = 0 -%>
+             tdc = 0 -%>
             </tr>
             <tr>
         <% end -%>
 
     <% end -%>
     </tr>
-  </tbody>
-    </table>
+    </tbody>
+</table>
 <%= grid.opts[:footer] -%>

@@ -391,8 +391,9 @@ module Saint
 
     # use a custom layout for current column.
     # also see {Saint::ClassApi#column_layout}, which set layout for all columns
-    def layout val = nil
+    def layout val = nil, &proc
       @layout = val if val
+      @layout = proc.call if proc
       @layout
     end
 
