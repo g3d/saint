@@ -35,11 +35,17 @@ module Saint
       @grid && @grid_columns += 1
       type, opts = nil, {}
       type_and_or_opts.each { |a| a.is_a?(Hash) ? opts.update(a) : type = a }
-      column = ::Saint::Column.new(name, type, opts.merge(rbw: @controller.saint.rbw, grid: @grid), &proc)
-      @columns[column.name] = column
+      @columns << {name: name, type: type, opts: opts.merge(rbw: @controller.saint.rbw, grid: @grid), proc: proc}
     end
 
     alias property column
+
+    def column_instances
+      @column_instances ||= @columns.inject({}) do |f, c|
+        column = ::Saint::Column.new @controller, c[:name], c[:type], c[:opts], &c[:proc]
+        f.merge column.name => column
+      end
+    end
 
     # by default, UI use a fieldset to display elements.
     # use this method to define a custom layout.
@@ -96,7 +102,7 @@ module Saint
 
     # returns earlier defined grids
     def grids
-      @grids ||= Hash.new
+      @grids ||= {}
     end
 
     # by default, Saint will manage all properties found on given model.
@@ -138,10 +144,6 @@ module Saint
         raise 'please call %s only inside #model block' % __method__ if model_defined?
         @columns_ignored = args
       end
-    end
-
-    def column_instances
-      @columns
     end
 
     private
@@ -204,12 +206,13 @@ module Saint
     # @options opts [String] layout_style
     # @options opts [Symbol, String] layout_class
     # @param [Proc] &proc
-    def initialize name, type = nil, opts = {}, &proc
+    def initialize controller, name, type = nil, opts = {}, &proc
 
       OPTS.each do |opt|
         opts.has_key?(opt) && instance_variable_set('@%s' % opt, opts[opt])
       end
 
+      @controller = controller
       proc && instance_exec(&proc)
 
       # default type is string
@@ -223,7 +226,7 @@ module Saint
       @grid = opts[:grid]
 
       @id = '%s_%s' % [name, Digest::MD5.hexdigest(@proc.to_s)]
-      @name = name.to_sym
+      @name = name
 
       @label ||= Saint::Inflector.titleize(@name)
 
@@ -245,6 +248,14 @@ module Saint
           ('width: %s;' % width if width),
           ('height: %s;' % height if height)
       ]
+    end
+
+    def controller_instance instance = nil
+      if instance
+        raise('@controller_instance already set') if @controller_instance
+        @controller_instance = instance
+      end
+      @controller_instance
     end
 
     # should the column be shown on Summary pages?
@@ -390,11 +401,18 @@ module Saint
     end
 
     # use a custom layout for current column.
-    # also see {Saint::ClassApi#column_layout}, which set layout for all columns
+    # also see {Saint::ClassApi#column_layout}, which set layout for all columns.
+    #
+    # if a block given, it will be executed inside controller instance(or controller if no instance)
+    # and returned value used as layout.
     def layout val = nil, &proc
       @layout = val if val
-      @layout = proc.call if proc
-      @layout
+      @layout_proc = proc if proc
+      if @layout_proc
+        (@controller_instance || @controller).instance_exec &@layout_proc
+      elsif @layout
+        @layout
+      end
     end
 
     # use default layout but add this css style
@@ -454,13 +472,13 @@ module Saint
     end
 
     # shortcut for `value row, :crud`
-    def crud_value row = nil, controller_instance = nil
-      value row, :crud, controller_instance
+    def crud_value row = nil
+      value row, :crud
     end
 
     # shortcut for `value row, :summary`
-    def summary_value row = nil, controller_instance = nil
-      value row, :summary, controller_instance
+    def summary_value row = nil
+      value row, :summary
     end
 
     # if block given, this method will set a proc to be executed when column value requested.
@@ -486,7 +504,7 @@ module Saint
     # @param [Object] row_or_value
     # @param [Symbol] scope
     # @param [Proc] proc
-    def value row_or_value = nil, scope = nil, controller_instance = nil, &proc
+    def value row_or_value = nil, scope = nil, &proc
 
       return @value_proc = proc if proc
 
@@ -495,7 +513,7 @@ module Saint
           row_or_value :
           (row_or_value.respond_to?(@name) ? row_or_value.send(@name) : (row_or_value||{})[@name])
 
-      @row, @scope, @controller_instance = row_or_value, scope, controller_instance
+      @row, @scope = row_or_value, scope
 
       if @options && summary?
         value = @options[value] unless checkbox? || multiple?
@@ -518,7 +536,7 @@ module Saint
         return '%.2f' % value if ::BigDecimal === value
       end
 
-      @row, @scope, @controller_instance = nil
+      @row, @scope = nil
       @rbw && value = @rbw.wrap(value)
       value.is_a?(String) ? (html? ? value : escape_html(value)) : value
     end

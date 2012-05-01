@@ -88,7 +88,7 @@ module Saint
             ds, belongs_to = Hash.new, Hash.new
             saint.column_instances.select { |n, c| c.save? }.each_value do |column|
 
-              value = column.value http.params[column.name.to_s], :save, self
+              value = column.value http.params[column.name], :save
 
               # nil columns are not saved/updated
               # to set column's value to nil, use SaintConst::NULL_VALUE as column value

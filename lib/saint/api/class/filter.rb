@@ -45,7 +45,7 @@ module Saint
       return unless configurable?
       type, opts = nil, {}
       type_and_or_opts.each { |a| a.is_a?(Hash) ? opts.update(a) : type = a.to_sym }
-      (@filters ||= Hash.new)[column] = Filter.new(@controller, column, type, opts, &proc)
+      (@filters ||= {})[column] = Filter.new(@controller, column, type, opts, &proc)
     end
 
     # if there are an filter defined for given column,
@@ -123,7 +123,7 @@ module Saint
     # @param [Array] *types
     def filter_instances params = nil, *types
 
-      @filters ||= Hash.new
+      @filters ||= {}
       return @filters unless params
 
       types = (types.size == 0 ? [:orm, :http, :html] : types).compact

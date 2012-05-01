@@ -13,7 +13,7 @@ module Saint
       @ipp = Saint.ipp
       @pkey = :id
 
-      @columns = {}
+      @columns = []
       @columns_opted, @columns_ignored = [], []
 
       @belongs_to, @has_n = {}, {}
@@ -168,7 +168,7 @@ module Saint
       else
         if row && @header_args.size == 0
           # no snippets defined, so using first column
-          value = row[column_instances.first.last.name]
+          value = row[column_instances.first[0]]
           header << (::BigDecimal === value ? '%.2f' % value : value)
         end
         @header_args.each do |a|
