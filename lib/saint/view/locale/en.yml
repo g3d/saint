@@ -1,0 +1,56 @@
+en:
+  # layout.erb
+  saint_title: 'Saint - Simple Admin Interface'
+  # dashboard.erb
+  latest: 'Latest Items'
+  belongs_to: 'Belongs To'
+  has_n: 'Has N'
+  is_tree: 'Is Tree'
+  # edit/edit.erb
+  creating_new: 'Creating new %s'
+  values_mismatch: 'Values mismatch for **%s** field'
+  reloading: 'Reloading...'
+  question_undone: 'This action can not be undone! Continue?'
+  # edit/assoc.erb
+  select_existing: 'Select Existing'
+  create_new: 'Create New %s'
+  attached: 'Attached %s'
+  select_related: 'Select Related %s'
+  is_tree_assoc: 'This is a Tree Association, so use main tab to create a new %s'
+  select: 'Select %s'
+  attach_current_to_new_created: 'Attach current **%s** to newly created **%s**'
+  insert_snippet_into_relation: 'Please insert `%s` into relation block.'
+  # edit/elements/password.erb
+  confirm_pass: 'Confirm:'
+  # fm/index.erb
+  uploading_into: 'Uploading files into %s'
+  search: 'Search'
+  upload: 'Upload'
+  create: 'Create'
+  rename: 'Rename'
+  delete: 'Delete'
+  reset: 'Reset'
+  removing_folder: 'Removing %s folder and ANYTHING under it?'
+  create_file_folder: 'Create new File or Folder...'
+  file: 'File'
+  folder: 'Folder'
+  found_files: 'Found %s files for *%s*'
+  # fm/file.erb
+  sucesfully_saved: 'File Successfully Saved'
+  saving_file: 'saving file, please wait...'
+  download: 'Download'
+  resize: 'Resize'
+  copy: 'Copy'
+  close: 'Close'
+  hint_resize: 'Hint: To resize proportionally by width, set height to 0. To resize proportionally by height, set width to 0.'
+  loading_content: 'loading content, please wait ...'
+  sorry_filesizelimit: 'Sorry, can not edit files bigger than %s'
+  # list/list.erb
+  flters: 'Filters'
+  remove_files: 'This will remove selected items.'
+  # list/list-partial.erb
+  children: 'children'
+  # pager/assoc.erb
+  dots: '...'
+
+
