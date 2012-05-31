@@ -1,0 +1,56 @@
+uk:
+  # layout.erb
+  saint_title: 'Saint - простий інтерфейс адміністратора'
+  # dashboard.erb
+  latest: 'Останні об’єкти'
+  belongs_to: ' Належить до'
+  has_n: 'Має N'
+  is_tree: 'Є деревом'
+  # edit/edit.erb
+  creating_new: 'Створення нового %s'
+  values_mismatch: 'Значення не співпадають для поля **%s**'
+  reloading: 'Перезавантаження...'
+  question_undone: 'Цю дію неможливо скасувати! Продовжити?'
+  # edit/assoc.erb
+  select_existing: 'Оберіть існуючий'
+  create_new: 'Створити новий %s'
+  attached: 'Приєднано %s'
+  select_related: 'Оберіть пов’язаних %s'
+  is_tree_assoc: 'Це вкладка дерева асоціацій, тож використовуйте основну вкладку для створення нового %s'
+  select: 'Оберіть %s'
+  attach_current_to_new_created: 'Приєднати даний **%s** до щойно створеного **%s**'
+  insert_snippet_into_relation: 'Будь ласка, вставте `%s` в блок зв’язків.'
+  # edit/elements/password.erb
+  confirm_pass: 'Підтвердіть пароль:'
+  # fm/index.erb
+  uploading_into: 'Завантаження файлу до %s'
+  search: 'Пошук'
+  upload: 'Завантажити'
+  create: 'Створити'
+  rename: 'Перейменувати'
+  delete: 'Видалити'
+  reset: 'Скинути'
+  removing_folder: 'Видалити каталог %s та **все**, що у ньому знаходиться?'
+  create_file_folder: 'Створити новий файл чи каталог...'
+  file: 'Файл'
+  folder: 'Каталог'
+  found_files: 'Знайдено %s файлів за запитом *%s*'
+  # fm/file.erb
+  sucesfully_saved: 'Файл успішно збережено'
+  saving_file: 'збереження файлу, зачекайте...'
+  download: 'Завантажити'
+  resize: 'Змінити розмір'
+  copy: 'Копіювати'
+  close: 'Закрити'
+  hint_resize: 'Підказка: Для зміни розміру пропорційно по ширині, задйте висоту 0. Для зміни розміру пропорційно по висоті, задайте ширину 0.'
+  loading_content: 'завантаження вмісту, зачекайте...'
+  sorry_filesizelimit: 'Вибачте, ви не можете змінювати файли, більші ніж %s'
+  # list/list.erb
+  flters: 'Фільтри'
+  remove_files: 'Це видалить обрані об’єкти.'
+  # list/list-partial.erb
+  children: 'дочірній елемент'
+  # pager/assoc.erb
+  dots: '...'
+
+
